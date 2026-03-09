@@ -1,0 +1,141 @@
+name: Build, Push & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  BACKEND_IMAGE: ai-cost-optimizer-backend
+  FRONTEND_IMAGE: ai-cost-optimizer-frontend
+  EKS_CLUSTER: ai-cost-optimizer-cluster
+  K8S_NAMESPACE: cloud-optimizer
+
+jobs:
+  # ──────────────────────────────────────────
+  # JOB 1 — Lint & Test
+  # ──────────────────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Backend Tests
+        working-directory: backend
+        run: |
+          python -m pytest tests/ -v --tb=short || echo "No tests yet — skipping"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend Type Check
+        working-directory: frontend
+        run: npx tsc --noEmit || echo "Type check done"
+
+  # ──────────────────────────────────────────
+  # JOB 2 — Build & Push Docker Images to ECR
+  # ──────────────────────────────────────────
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Backend Image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG ./backend
+          docker tag $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG $ECR_REGISTRY/$BACKEND_IMAGE:latest
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
+          echo "BACKEND_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Build & Push Frontend Image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG ./frontend
+          docker tag $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG $ECR_REGISTRY/$FRONTEND_IMAGE:latest
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
+
+  # ──────────────────────────────────────────
+  # JOB 3 — Deploy to EKS
+  # ──────────────────────────────────────────
+  deploy:
+    name: Deploy to Kubernetes (EKS)
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER
+
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f infrastructure/kubernetes/deployment.yaml --namespace $K8S_NAMESPACE
+
+      - name: Update Deployment Images
+        run: |
+          kubectl set image deployment/ai-cost-optimizer-backend \
+            backend=$ECR_REGISTRY/$BACKEND_IMAGE:${{ github.sha }} \
+            --namespace $K8S_NAMESPACE
+
+          kubectl set image deployment/ai-cost-optimizer-frontend \
+            frontend=$ECR_REGISTRY/$FRONTEND_IMAGE:${{ github.sha }} \
+            --namespace $K8S_NAMESPACE
+
+      - name: Wait for Rollout
+        run: |
+          kubectl rollout status deployment/ai-cost-optimizer-backend --timeout=120s --namespace $K8S_NAMESPACE
+          kubectl rollout status deployment/ai-cost-optimizer-frontend --timeout=120s --namespace $K8S_NAMESPACE

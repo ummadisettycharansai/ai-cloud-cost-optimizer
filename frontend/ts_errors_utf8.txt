@@ -1,0 +1,27 @@
+﻿src/App.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/AnomalyAlerts.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/AnomalyAlerts.tsx(2,25): error TS6133: 'Info' is declared but its value is never read.
+src/components/AnomalyAlerts.tsx(5,41): error TS7031: Binding element 'anomalies' implicitly has an 'any' type.
+src/components/AnomalyAlerts.tsx(30,29): error TS7006: Parameter 'anomaly' implicitly has an 'any' type.
+src/components/AnomalyAlerts.tsx(30,38): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/components/CostChart.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/CostChart.tsx(2,10): error TS6133: 'AreaChart' is declared but its value is never read.
+src/components/CostChart.tsx(2,86): error TS6133: 'LineChart' is declared but its value is never read.
+src/components/CostChart.tsx(4,37): error TS7031: Binding element 'history' implicitly has an 'any' type.
+src/components/CostChart.tsx(4,46): error TS7031: Binding element 'forecast' implicitly has an 'any' type.
+src/components/CostChart.tsx(8,19): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/CostChart.tsx(12,20): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/CostChart.tsx(53,53): error TS2345: Argument of type 'ValueType | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/components/CostChart.tsx(56,19): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: Props<{ forecast_cost: any; } & { forecast_cost: any; } & { forecast_cost: any; }, any>): ReactElement<unknown, string | JSXElementConstructor<any>>', gave the following error.
+    Type '"dashed"' is not assignable to type 'CurveType | undefined'.
+  Overload 2 of 2, '(props: Props<any, any>): ReactElement<unknown, string | JSXElementConstructor<any>>', gave the following error.
+    Type '"dashed"' is not assignable to type 'CurveType | undefined'.
+src/components/DashboardOverview.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/DashboardOverview.tsx(4,45): error TS7031: Binding element 'data' implicitly has an 'any' type.
+src/components/RecommendationsPanel.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/RecommendationsPanel.tsx(5,48): error TS7031: Binding element 'recommendations' implicitly has an 'any' type.
+src/components/RecommendationsPanel.tsx(18,20): error TS7006: Parameter 'service' implicitly has an 'any' type.
+src/components/RecommendationsPanel.tsx(32,32): error TS7006: Parameter 'rec' implicitly has an 'any' type.
+src/components/RecommendationsPanel.tsx(32,37): error TS7006: Parameter 'idx' implicitly has an 'any' type.

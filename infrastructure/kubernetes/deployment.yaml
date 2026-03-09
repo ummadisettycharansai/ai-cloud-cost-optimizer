@@ -1,0 +1,142 @@
+# infrastructure/kubernetes/backend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-cost-optimizer-backend
+  namespace: cloud-optimizer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: <your-ecr-repo>/ai-cost-optimizer-backend:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: REDIS_URL
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: cloud-optimizer
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-cost-optimizer-frontend
+  namespace: cloud-optimizer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: <your-ecr-repo>/ai-cost-optimizer-frontend:latest
+          ports:
+            - containerPort: 5173
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: cloud-optimizer
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 5173
+  type: LoadBalancer
+---
+# Celery Worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: cloud-optimizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: <your-ecr-repo>/ai-cost-optimizer-backend:latest
+          command: ["celery", "-A", "workers.celery_worker.celery_app", "worker", "--loglevel=info"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: REDIS_URL
+---
+# Kafka Consumer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-consumer
+  namespace: cloud-optimizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-consumer
+    spec:
+      containers:
+        - name: kafka-consumer
+          image: <your-ecr-repo>/ai-cost-optimizer-streaming:latest
+          command: ["python", "-m", "kafka_consumer.cost_event_consumer"]
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+

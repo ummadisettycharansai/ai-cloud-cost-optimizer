@@ -1,0 +1,31 @@
+# Environments
+.env
+
+# Dependencies
+node_modules/
+venv/
+env/
+.venv/
+
+# Build dirs
+dist/
+build/
+*.egg-info/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

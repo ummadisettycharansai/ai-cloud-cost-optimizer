@@ -1,0 +1,57 @@
+# Core Web Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+python-dotenv
+
+# Settings
+pydantic
+pydantic-settings
+
+# Data / AI
+boto3
+pandas
+scikit-learn
+joblib
+numpy
+
+# Forecasting
+prophet
+
+# Auth / Security
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Observability
+prometheus-client
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+
+# Background Workers
+celery
+redis
+
+# Streaming
+kafka-python
+
+# GCP Integration (optional — for real GCP billing calls)
+google-cloud-billing
+google-auth
+google-cloud-compute
+google-cloud-bigquery
+
+# Azure Integration (optional — for real Azure cost management calls)
+azure-mgmt-costmanagement
+azure-identity
+azure-mgmt-compute
+
+# Testing & Security
+pytest
+httpx
+requests
+cryptography

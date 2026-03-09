@@ -1,0 +1,105 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\Ummadisetty Charan\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend
+plugins: anyio-4.12.1
+collecting ... collected 22 items
+
+tests/test_autopilot.py::test_get_autopilot_status PASSED                [  4%]
+tests/test_autopilot.py::test_enable_autopilot PASSED                    [  9%]
+tests/test_autopilot.py::test_disable_autopilot PASSED                   [ 13%]
+tests/test_autopilot.py::test_get_autopilot_actions PASSED               [ 18%]
+tests/test_autopilot.py::test_run_autopilot_manually PASSED              [ 22%]
+tests/test_budget_engine.py::test_empty_budgets PASSED                   [ 27%]
+tests/test_budget_engine.py::test_create_budget FAILED                   [ 31%]
+tests/test_budget_engine.py::test_budget_summary FAILED                  [ 36%]
+tests/test_budget_engine.py::test_budget_alerts PASSED                   [ 40%]
+tests/test_cloud_connections.py::test_list_cloud_accounts_empty PASSED   [ 45%]
+tests/test_cloud_connections.py::test_connect_aws_account PASSED         [ 50%]
+tests/test_cloud_connections.py::test_delete_cloud_account PASSED        [ 54%]
+tests/test_cloud_connections.py::test_sync_cloud_account PASSED          [ 59%]
+tests/test_forecasting.py::test_forecasting_pipeline_empty PASSED        [ 63%]
+tests/test_rbac.py::test_admin_can_create_org PASSED                     [ 68%]
+tests/test_rbac.py::test_viewer_cannot_create_org PASSED                 [ 72%]
+tests/test_rbac.py::test_viewer_cannot_enable_autopilot PASSED           [ 77%]
+tests/test_rbac.py::test_viewer_cannot_modify_budgets PASSED             [ 81%]
+tests/test_recommendations.py::test_generate_recommendations PASSED      [ 86%]
+tests/test_recommendations.py::test_savings_opportunities PASSED         [ 90%]
+tests/test_recommendations.py::test_cost_efficiency_scoring PASSED       [ 95%]
+tests/test_recommendations.py::test_rightsizing_recommendations PASSED   [100%]
+
+================================== FAILURES ===================================
+_____________________________ test_create_budget ______________________________
+tests\test_budget_engine.py:14: in test_create_budget
+    assert resp.status_code == 201
+E   assert 422 == 201
+E    +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+_____________________________ test_budget_summary _____________________________
+tests\test_budget_engine.py:24: in test_budget_summary
+    assert "total_allocated" in data
+E   AssertionError: assert 'total_allocated' in {'alerts_count': 0, 'overall_utilization_pct': 0.0, 'total_budget_limit': 0.0, 'total_spent': 0.0}
+============================== warnings summary ===============================
+schemas.py:16
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:16: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class OrganizationOut(BaseModel):
+
+schemas.py:39
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:39: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class ProjectOut(BaseModel):
+
+schemas.py:65
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:65: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class BudgetOut(BaseModel):
+
+schemas.py:107
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:107: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class CloudResourceResponse(CloudResourceBase):
+
+schemas.py:125
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:125: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class CostAnomalyResponse(CostAnomalyBase):
+
+schemas.py:145
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:145: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RecommendationResponse(RecommendationBase):
+
+schemas.py:165
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:165: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class AutopilotPolicyOut(AutopilotPolicyBase):
+
+schemas.py:172
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:172: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class AutopilotActionOut(BaseModel):
+
+schemas.py:215
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\schemas.py:215: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class CloudAccountOut(BaseModel):
+
+config.py:14
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\config.py:14: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Settings(BaseSettings):
+
+tests/test_autopilot.py: 3 warnings
+tests/test_budget_engine.py: 4 warnings
+tests/test_cloud_connections.py: 4 warnings
+tests/test_rbac.py: 4 warnings
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\auth\auth_handler.py:73: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+tests/test_autopilot.py: 5 warnings
+tests/test_budget_engine.py: 3 warnings
+tests/test_cloud_connections.py: 4 warnings
+tests/test_forecasting.py: 1 warning
+tests/test_rbac.py: 3 warnings
+  C:\Users\Ummadisetty Charan\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+tests/test_cloud_connections.py::test_sync_cloud_account
+  C:\Users\Ummadisetty Charan\OneDrive\Desktop\AI Cloud Cost Optimizer Tasks\ai-cloud-cost-optimizer\backend\crud.py:220: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    account.last_synced_at = datetime.datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_budget_engine.py::test_create_budget - assert 422 == 201
+FAILED tests/test_budget_engine.py::test_budget_summary - AssertionError: ass...
+================== 2 failed, 20 passed, 42 warnings in 1.36s ==================
