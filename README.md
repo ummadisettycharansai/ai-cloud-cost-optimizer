@@ -128,6 +128,23 @@ The project includes YAML manifests for deployment to EKS, AKS, or GKE.
 
 ---
 
+## ☁️ GitHub Repository Setup
+
+To host this project on GitHub for team collaboration, follow these push instructions:
+
+1. Create a new repository on GitHub named **`ai-cloud-cost-optimizer`**.
+2. Add the remote origin:
+   ```bash
+   git remote add origin https://github.com/<username>/ai-cloud-cost-optimizer.git
+   ```
+3. Push the project:
+   ```bash
+   git branch -M main
+   git push -u origin main
+   ```
+
+---
+
 ## 🤝 Team Collaboration
 
 We welcome team collaboration! Follow these steps to get started:
