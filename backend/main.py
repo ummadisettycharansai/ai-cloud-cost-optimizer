@@ -213,6 +213,13 @@ def get_cost_history():
     return _get_all_history(days=30)
 
 
+@app.get("/api/demo-costs")
+def get_demo_costs():
+    """Returns 30 days of realistic demo cloud billing data."""
+    from demo.demo_cost_data import generate_demo_costs
+    return generate_demo_costs(days=30)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # AI — Anomalies, Forecast, Recommendations
 # ══════════════════════════════════════════════════════════════════════════════

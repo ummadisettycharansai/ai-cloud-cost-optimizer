@@ -29,6 +29,52 @@ export default function DashboardOverview({ overview, history, forecast, costByS
   const [policy, setPolicy] = useState<AutopilotPolicy | null>(null);
   const [recentActions, setRecentActions] = useState<AutopilotAction[]>([]);
 
+  // Local state for fallback charts
+  const [localHistory, setLocalHistory] = useState<any[]>(history || []);
+  const [localCostByService, setLocalCostByService] = useState<Record<string, number>>(costByService || {});
+  const [localResources, setLocalResources] = useState<any[]>(resources || []);
+
+  useEffect(() => {
+    // Check if real history exists
+    if (history && history.length > 0) {
+      setLocalHistory(history);
+      setLocalCostByService(costByService);
+      setLocalResources(resources);
+      return;
+    }
+
+    // Fallback: Use demo data
+    axios.get(`${API_BASE}/api/demo-costs`)
+      .then(res => {
+        const demoData = res.data;
+
+        // 1. Transform for CostTrend Chart
+        const histMap = new Map();
+        demoData.forEach((item: any) => {
+          histMap.set(item.date, (histMap.get(item.date) || 0) + item.cost);
+        });
+        const mappedHistory = Array.from(histMap.entries()).map(([date, cost]) => ({ date, cost: Number(cost.toFixed(2)) }));
+        mappedHistory.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        setLocalHistory(mappedHistory);
+
+        // 2. Transform for CostByService Chart
+        const srvMap: Record<string, number> = {};
+        demoData.forEach((item: any) => {
+          srvMap[item.service] = (srvMap[item.service] || 0) + item.cost;
+        });
+        setLocalCostByService(srvMap);
+
+        // 3. Transform for CostByRegion (Mocking resources based on service totals)
+        const regions = ['us-east-1', 'eu-west-1', 'ap-south-1', 'us-west-2'];
+        const mockResources = Object.entries(srvMap).map(([_, cost], idx) => ({
+          region: regions[idx % regions.length],
+          monthly_cost: cost
+        }));
+        setLocalResources(mockResources);
+      })
+      .catch(err => console.error("Failed to fetch demo costs", err));
+  }, [history, costByService, resources]);
+
   useEffect(() => {
     Promise.all([
       axios.get(`${API_BASE}/api/autopilot/status`).catch(() => null),
@@ -52,13 +98,13 @@ export default function DashboardOverview({ overview, history, forecast, costByS
       {/* Cost Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-1 lg:col-span-2">
-          <CostChart history={history} forecast={forecast} />
+          <CostChart history={localHistory} forecast={forecast} />
         </div>
         <div className="col-span-1">
-          <CostByServiceChart data={costByService} />
+          <CostByServiceChart data={localCostByService} />
         </div>
         <div className="col-span-1 lg:col-span-3">
-          <CostByRegionChart data={resources} />
+          <CostByRegionChart data={localResources} />
         </div>
       </div>
 
