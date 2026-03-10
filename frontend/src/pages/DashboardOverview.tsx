@@ -44,7 +44,8 @@ export default function DashboardOverview({ overview, history, forecast, costByS
     }
 
     // Fallback: Use demo data
-    axios.get(`${API_BASE}/api/demo-costs`)
+    const apiUrl = import.meta.env.VITE_API_URL || API_BASE;
+    axios.get(`${apiUrl}/api/demo-costs`)
       .then(res => {
         const demoData = res.data;
 
@@ -64,7 +65,7 @@ export default function DashboardOverview({ overview, history, forecast, costByS
         });
         setLocalCostByService(srvMap);
 
-        // 3. Transform for CostByRegion (Mocking resources based on service totals)
+        // 3. Transform for CostByRegion (Mocking realistic regions)
         const regions = ['us-east-1', 'eu-west-1', 'ap-south-1', 'us-west-2'];
         const mockResources = Object.entries(srvMap).map(([_, cost], idx) => ({
           region: regions[idx % regions.length],
