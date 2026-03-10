@@ -9,6 +9,15 @@ An enterprise-grade, event-driven FinOps platform designed to identify, forecast
 
 ---
 
+## 🌐 Live Demo
+
+Frontend dashboard deployed on Vercel:
+[https://ai-cloud-cost-optimizer.vercel.app](https://ai-cloud-cost-optimizer.vercel.app)
+
+*Note: The backend API must also be deployed and accessible for full functionality.*
+
+---
+
 ## 🚀 Project Overview
 
 Modern cloud infrastructure often incurs massive hidden costs due to idle resources, over-provisioning, and forgotten storage volumes. The **AI Cloud Cost Optimizer** solves this by uniting real-world billing APIs with AI-driven anomaly detection and **Cost Autopilot**, a system capable of executing automated remediation (e.g., shutting down idle EC2s or scaling down VMs) subject to strict safety policies.
@@ -26,6 +35,13 @@ Modern cloud infrastructure often incurs massive hidden costs due to idle resour
 
 ![Architecture](docs/architecture.png)
 
+### Deployment Architecture
+- **React Dashboard:** Vercel
+- **FastAPI Backend:** Cloud server (Render / AWS / Railway)
+- **Data Persistence:** Managed database (PostgreSQL)
+- **Event Streaming:** Kafka Event Pipeline
+
+### System Components
 The system leverages a microservices-inspired design:
 - **React Frontend:** Communicates via REST to FastAPI.
 - **FastAPI Core:** Handles Budgets, Org RBAC, and Authentication.
