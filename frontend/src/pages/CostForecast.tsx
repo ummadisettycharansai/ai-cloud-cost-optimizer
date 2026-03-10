@@ -3,7 +3,7 @@ import axios from 'axios';
 import { TrendingUp } from 'lucide-react';
 import ForecastChart from '../components/ForecastChart';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../services/api';
 
 interface HistoryPoint {
   date: string;

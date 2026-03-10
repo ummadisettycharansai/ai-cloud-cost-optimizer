@@ -4,7 +4,7 @@ import { DollarSign, AlertTriangle, PlusCircle, ChevronDown, ChevronUp } from 'l
 import BudgetGauge from '../components/BudgetGauge';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../services/api';
 
 interface Budget {
   id: number;

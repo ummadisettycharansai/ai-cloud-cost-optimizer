@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Bot, Power, Zap, Play, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../services/api';
 
 interface AutopilotPolicy {
   id: number;

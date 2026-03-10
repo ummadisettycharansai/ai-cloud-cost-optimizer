@@ -7,7 +7,7 @@ import CostChart from '../components/CostChart';
 import CostByServiceChart from '../components/CostByServiceChart';
 import CostByRegionChart from '../components/CostByRegionChart';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../services/api';
 
 interface AutopilotAction {
   id: number;

@@ -19,7 +19,7 @@ import AIEnginePage from './pages/AIEngine';
 import AutopilotPage from './pages/Autopilot';
 import { useAuth } from './context/AuthContext';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from './services/api';
 
 const navItems = [
   { to: '/',             label: 'Dashboard',      icon: LayoutDashboard },

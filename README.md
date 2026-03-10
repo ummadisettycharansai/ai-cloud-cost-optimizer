@@ -9,12 +9,13 @@ An enterprise-grade, event-driven FinOps platform designed to identify, forecast
 
 ---
 
-## 🌐 Live Demo
+## Live Demo
 
-Frontend dashboard deployed on Vercel:
-[https://ai-cloud-cost-optimizer.vercel.app](https://ai-cloud-cost-optimizer.vercel.app)
+Frontend dashboard deployed on Vercel.
 
-*Note: The backend API must also be deployed and accessible for full functionality.*
+https://ai-cloud-cost-optimizer.vercel.app
+
+Note that the backend must be deployed separately for full API functionality.
 
 ---
 
@@ -36,10 +37,10 @@ Modern cloud infrastructure often incurs massive hidden costs due to idle resour
 ![Architecture](docs/architecture.png)
 
 ### Deployment Architecture
-- **React Dashboard:** Vercel
-- **FastAPI Backend:** Cloud server (Render / AWS / Railway)
-- **Data Persistence:** Managed database (PostgreSQL)
-- **Event Streaming:** Kafka Event Pipeline
+React Dashboard → Vercel
+FastAPI Backend → Cloud server (Render / AWS / Railway)
+PostgreSQL → Managed database
+Kafka → Event streaming pipeline
 
 ### System Components
 The system leverages a microservices-inspired design:
