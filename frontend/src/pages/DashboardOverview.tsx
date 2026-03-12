@@ -6,6 +6,8 @@ import DashboardOverviewComponent from '../components/DashboardOverview';
 import CostChart from '../components/CostChart';
 import CostByServiceChart from '../components/CostByServiceChart';
 import CostByRegionChart from '../components/CostByRegionChart';
+import RestrictedCard from '../components/RestrictedCard';
+import { useAuth } from '../context/AuthContext';
 
 import { API_BASE } from '../services/api';
 
@@ -26,6 +28,7 @@ interface AutopilotPolicy {
 }
 
 export default function DashboardOverview({ overview, history, forecast, costByService, resources }: any) {
+  const { permissions } = useAuth();
   const [policy, setPolicy] = useState<AutopilotPolicy | null>(null);
   const [recentActions, setRecentActions] = useState<AutopilotAction[]>([]);
 
@@ -77,6 +80,8 @@ export default function DashboardOverview({ overview, history, forecast, costByS
   }, [history, costByService, resources]);
 
   useEffect(() => {
+    if (!permissions.canSeeAutopilot && !permissions.canSeeFinancials) return;
+
     Promise.all([
       axios.get(`${API_BASE}/api/autopilot/status`).catch(() => null),
       axios.get(`${API_BASE}/api/autopilot/actions?limit=5`).catch(() => null),
@@ -84,7 +89,7 @@ export default function DashboardOverview({ overview, history, forecast, costByS
       if (pRes) setPolicy(pRes.data);
       if (aRes) setRecentActions(aRes.data.slice(0, 5));
     });
-  }, []);
+  }, [permissions]);
 
   const successActions = recentActions.filter(a => a.status === 'success');
   const totalSaved = successActions.reduce((sum, a) => sum + a.estimated_savings, 0);
@@ -99,97 +104,120 @@ export default function DashboardOverview({ overview, history, forecast, costByS
       {/* Cost Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-1 lg:col-span-2">
-          <CostChart history={localHistory} forecast={forecast} />
+          {permissions.canSeeFinancials ? (
+            <CostChart history={localHistory} forecast={forecast} />
+          ) : (
+            <RestrictedCard title="Cost Trend Restricted" message="Viewing cost trends requires Finance or Admin access." className="h-full" />
+          )}
         </div>
         <div className="col-span-1">
-          <CostByServiceChart data={localCostByService} />
+          {permissions.canSeeFinancials ? (
+            <CostByServiceChart data={localCostByService} />
+          ) : (
+            <RestrictedCard title="Service Costs Restricted" className="h-full" />
+          )}
         </div>
         <div className="col-span-1 lg:col-span-3">
-          <CostByRegionChart data={localResources} />
+          {permissions.canSeeFinancials ? (
+            <CostByRegionChart data={localResources} />
+          ) : (
+            <RestrictedCard title="Regional Spend Restricted" />
+          )}
         </div>
       </div>
 
       {/* Autopilot Status Panel */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className={`p-2 rounded-lg ${policy?.enabled ? 'bg-emerald-500/10' : 'bg-zinc-800'}`}>
-              <Bot className={`w-5 h-5 ${policy?.enabled ? 'text-emerald-400' : 'text-zinc-500'}`} />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-zinc-200">Cost Autopilot</h2>
-              <p className="text-xs text-zinc-500">Autonomous waste elimination engine</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border ${policy?.enabled
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-zinc-800 text-zinc-500 border-zinc-700'
-              }`}>
-              {policy?.enabled
-                ? <><CheckCircle className="w-3 h-3" /> Active</>
-                : <><XCircle className="w-3 h-3" /> Disabled</>
-              }
-            </span>
-            <Link
-              to="/autopilot"
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-            >
-              Manage <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <p className="text-xs text-zinc-500 mb-1">Savings Rescued</p>
-            <p className="text-lg font-bold text-emerald-400">
-              ${(overview?.autopilot_savings || totalSaved).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <p className="text-xs text-zinc-500 mb-1">Actions Run</p>
-            <p className="text-lg font-bold text-zinc-100">{recentActions.length}</p>
-          </div>
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <p className="text-xs text-zinc-500 mb-1">Daily Limit</p>
-            <p className="text-lg font-bold text-zinc-100">{policy?.max_daily_actions ?? '—'}</p>
-          </div>
-        </div>
-
-        {recentActions.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Recent Actions</p>
-            {recentActions.map(action => (
-              <div key={action.id} className="flex items-center justify-between text-xs bg-zinc-800/40 rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-3 h-3 text-zinc-500" />
-                  <span className="text-zinc-300 font-mono">{action.resource_id}</span>
-                  <span className="text-zinc-500">—</span>
-                  <span className="text-zinc-400 capitalize">{action.action.replace(/_/g, ' ')}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-emerald-400 font-medium">+${action.estimated_savings.toFixed(2)}</span>
-                  <span className={`px-2 py-0.5 rounded-full font-medium ${action.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
-                    action.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
-                      'bg-red-500/10 text-red-400'
-                    }`}>
-                    {action.status}
-                  </span>
-                </div>
+      {!permissions.canSeeAutopilot ? (
+        <RestrictedCard
+          title="Autopilot Control Restricted"
+          message="Autonomous optimization engine management is only available for Admin users."
+        />
+      ) : (
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`p-2 rounded-lg ${policy?.enabled ? 'bg-emerald-500/10' : 'bg-zinc-800'}`}>
+                <Bot className={`w-5 h-5 ${policy?.enabled ? 'text-emerald-400' : 'text-zinc-500'}`} />
               </div>
-            ))}
+              <div>
+                <h2 className="text-sm font-semibold text-zinc-200">Cost Autopilot</h2>
+                <p className="text-xs text-zinc-500">Autonomous waste elimination engine</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border ${policy?.enabled
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'bg-zinc-800 text-zinc-500 border-zinc-700'
+                }`}>
+                {policy?.enabled
+                  ? <><CheckCircle className="w-3 h-3" /> Active</>
+                  : <><XCircle className="w-3 h-3" /> Disabled</>
+                }
+              </span>
+              <Link
+                to="/autopilot"
+                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                Manage <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </div>
-        )}
 
-        {recentActions.length === 0 && (
-          <div className="text-center py-4 text-zinc-600 text-xs">
-            {policy?.enabled
-              ? 'No actions executed yet. Run Autopilot to eliminate waste.'
-              : 'Enable Autopilot to start automatically optimizing your cloud costs.'}
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="bg-zinc-800/50 rounded-lg p-3">
+              <p className="text-xs text-zinc-500 mb-1">Savings Rescued</p>
+              <p className="text-lg font-bold text-emerald-400">
+                {permissions.canSeeFinancials ? (
+                  `$${(overview?.autopilot_savings || totalSaved).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                ) : "—"}
+              </p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-3">
+              <p className="text-xs text-zinc-500 mb-1">Actions Run</p>
+              <p className="text-lg font-bold text-zinc-100">{recentActions.length}</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-3">
+              <p className="text-xs text-zinc-500 mb-1">Daily Limit</p>
+              <p className="text-lg font-bold text-zinc-100">{policy?.max_daily_actions ?? '—'}</p>
+            </div>
           </div>
-        )}
-      </div>
+
+          {recentActions.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Recent Actions</p>
+              {recentActions.map(action => (
+                <div key={action.id} className="flex items-center justify-between text-xs bg-zinc-800/40 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-3 h-3 text-zinc-500" />
+                    <span className="text-zinc-300 font-mono">{action.resource_id}</span>
+                    <span className="text-zinc-500">—</span>
+                    <span className="text-zinc-400 capitalize">{action.action.replace(/_/g, ' ')}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-emerald-400 font-medium">
+                      {permissions.canSeeFinancials ? `+$${action.estimated_savings.toFixed(2)}` : "—"}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full font-medium ${action.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
+                      action.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                        'bg-red-500/10 text-red-400'
+                      }`}>
+                      {action.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {recentActions.length === 0 && (
+            <div className="text-center py-4 text-zinc-600 text-xs">
+              {policy?.enabled
+                ? 'No actions executed yet. Run Autopilot to eliminate waste.'
+                : 'Enable Autopilot to start automatically optimizing your cloud costs.'}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

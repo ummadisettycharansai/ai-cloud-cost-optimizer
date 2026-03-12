@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Lightbulb, DollarSign, TrendingDown, Clock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import RestrictedCard from '../components/RestrictedCard';
 
 interface Recommendation {
   resource_id: string;
@@ -19,18 +21,19 @@ interface RecommendationsPageProps {
 
 const PRIORITY_CONFIG: Record<string, { label: string; className: string; sort: number }> = {
   critical: { label: 'Critical', className: 'bg-red-900/50 text-red-400 border border-red-700', sort: 0 },
-  high:     { label: 'High',     className: 'bg-orange-900/50 text-orange-400 border border-orange-700', sort: 1 },
-  medium:   { label: 'Medium',   className: 'bg-yellow-900/50 text-yellow-400 border border-yellow-700', sort: 2 },
-  low:      { label: 'Low',      className: 'bg-zinc-700/50 text-zinc-400 border border-zinc-600', sort: 3 },
+  high: { label: 'High', className: 'bg-orange-900/50 text-orange-400 border border-orange-700', sort: 1 },
+  medium: { label: 'Medium', className: 'bg-yellow-900/50 text-yellow-400 border border-yellow-700', sort: 2 },
+  low: { label: 'Low', className: 'bg-zinc-700/50 text-zinc-400 border border-zinc-600', sort: 3 },
 };
 
 const PROVIDER_BADGE: Record<string, string> = {
-  AWS:   'bg-orange-500/20 text-orange-300',
-  GCP:   'bg-blue-500/20 text-blue-300',
+  AWS: 'bg-orange-500/20 text-orange-300',
+  GCP: 'bg-blue-500/20 text-blue-300',
   Azure: 'bg-sky-500/20 text-sky-300',
 };
 
 export default function RecommendationsPage({ recommendations }: RecommendationsPageProps) {
+  const { permissions } = useAuth();
   const [filter, setFilter] = useState<string>('all');
   const [providerFilter, setProviderFilter] = useState<string>('all');
 
@@ -46,6 +49,14 @@ export default function RecommendationsPage({ recommendations }: Recommendations
   const avgROI = recommendations.length > 0
     ? recommendations.reduce((s, r) => s + (r.roi_score ?? 0), 0) / recommendations.length
     : 0;
+
+  if (!permissions.canSeeRecommendations) {
+    return (
+      <div className="p-12 flex items-center justify-center">
+        <RestrictedCard title="Recommendations Restricted" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -63,7 +74,9 @@ export default function RecommendationsPage({ recommendations }: Recommendations
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2"><DollarSign className="w-3 h-3" /> Total Potential Savings</div>
-          <p className="text-2xl font-bold text-green-400">${totalSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <p className="text-2xl font-bold text-green-400">
+            {permissions.canSeeFinancials ? `$${totalSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}
+          </p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2"><TrendingDown className="w-3 h-3" /> Avg ROI Score</div>
@@ -84,9 +97,8 @@ export default function RecommendationsPage({ recommendations }: Recommendations
             <button
               key={p}
               onClick={() => setFilter(p)}
-              className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${
-                filter === p ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
+              className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${filter === p ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
             >
               {p}
             </button>
@@ -97,9 +109,8 @@ export default function RecommendationsPage({ recommendations }: Recommendations
             <button
               key={p}
               onClick={() => setProviderFilter(p)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                providerFilter === p ? 'bg-teal-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
-              }`}
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${providerFilter === p ? 'bg-teal-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
             >
               {p}
             </button>
@@ -144,7 +155,9 @@ export default function RecommendationsPage({ recommendations }: Recommendations
                     <td className="px-4 py-3 text-xs font-mono text-zinc-400">{r.service_name}</td>
                     <td className="px-4 py-3 font-medium text-zinc-200 text-xs">{r.recommendation_type}</td>
                     <td className="px-4 py-3 text-zinc-400 text-xs max-w-[260px] leading-relaxed">{r.description}</td>
-                    <td className="px-4 py-3 font-bold text-green-400">${r.estimated_savings.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-bold text-green-400">
+                      {permissions.canSeeFinancials ? `$${r.estimated_savings.toLocaleString()}` : "—"}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`font-semibold ${(r.roi_score ?? 0) >= 50 ? 'text-violet-400' : 'text-zinc-400'}`}>
                         {r.roi_score?.toFixed(1) ?? '—'}

@@ -1,11 +1,19 @@
 import { DollarSign, Activity, AlertCircle, CloudLightning } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardOverview({ data }: { data: any }) {
+  const { permissions } = useAuth();
+
+  const formatCost = (val: number) => {
+    if (!permissions.canSeeFinancials) return "—";
+    return `$${val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  };
+
   const cards = [
     {
       title: "Total Monthly Cost",
-      value: `$${data.total_monthly_cost.toLocaleString()}`,
-      subtitle: `${data.cost_change_percentage}% from last month`,
+      value: formatCost(data.total_monthly_cost),
+      subtitle: permissions.canSeeFinancials ? `${data.cost_change_percentage}% from last month` : "Data restricted",
       icon: <DollarSign className="w-6 h-6 text-primary" />
     },
     {
@@ -22,8 +30,8 @@ export default function DashboardOverview({ data }: { data: any }) {
     },
     {
       title: "Autopilot Savings",
-      value: `$${(data.autopilot_savings || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      subtitle: "Rescued automatically",
+      value: formatCost(data.autopilot_savings || 0),
+      subtitle: permissions.canSeeFinancials ? "Rescued automatically" : "Data restricted",
       icon: <CloudLightning className="w-6 h-6 text-emerald-400" />
     }
   ];

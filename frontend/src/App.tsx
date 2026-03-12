@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   LayoutDashboard, AlertTriangle, Lightbulb, Settings, Menu,
-  Server, Globe, Box, DollarSign, Building2, TrendingUp, Bot,
+  Server, Globe, Box, DollarSign, Building2, TrendingUp, Bot, Lock, ShieldCheck, Shield
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 
@@ -18,26 +18,44 @@ import CostForecastPage from './pages/CostForecast';
 import AIEnginePage from './pages/AIEngine';
 import AutopilotPage from './pages/Autopilot';
 import { useAuth } from './context/AuthContext';
+import type { Role } from './context/AuthContext';
+import RestrictedCard from './components/RestrictedCard';
 
 import { API_BASE } from './services/api';
 
 const navItems = [
-  { to: '/',             label: 'Dashboard',      icon: LayoutDashboard },
-  { to: '/alerts',       label: 'Alerts',          icon: AlertTriangle },
-  { to: '/recommendations', label: 'Recommendations', icon: Lightbulb },
-  { to: '/budgets',      label: 'Budgets',         icon: DollarSign },
-  { to: '/forecast',     label: 'Forecast',        icon: TrendingUp },
-  { to: '/autopilot',    label: 'Autopilot',       icon: Bot },
-  { to: '/ai-engine',   label: 'AI Engine',       icon: Server },
-  { to: '/organizations', label: 'Organizations',  icon: Building2 },
-  { to: '/service-cost', label: 'Service Cost',    icon: Server },
-  { to: '/region-cost',  label: 'Region Cost',     icon: Globe },
-  { to: '/kubernetes-cost', label: 'Kubernetes',   icon: Box },
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, permission: null },
+  { to: '/alerts', label: 'Alerts', icon: AlertTriangle, permission: 'canSeeAlerts' },
+  { to: '/recommendations', label: 'Recommendations', icon: Lightbulb, permission: 'canSeeRecommendations' },
+  { to: '/budgets', label: 'Budgets', icon: DollarSign, permission: 'canSeeBudgets' },
+  { to: '/forecast', label: 'Forecast', icon: TrendingUp, permission: 'canSeeForecast' },
+  { to: '/autopilot', label: 'Autopilot', icon: Bot, permission: 'canSeeAutopilot' },
+  { to: '/ai-engine', label: 'AI Engine', icon: Server, permission: 'canSeeAIEngine' },
+  { to: '/organizations', label: 'Organizations', icon: Building2, permission: 'canSeeOrganizations' },
+  { to: '/service-cost', label: 'Service Cost', icon: Server, permission: 'canSeeServiceCost' },
+  { to: '/region-cost', label: 'Region Cost', icon: Globe, permission: 'canSeeFinancials' },
+  { to: '/kubernetes-cost', label: 'Kubernetes', icon: Box, permission: 'canSeeKubernetes' },
 ];
+
+const RoleBanner = ({ role }: { role: Role }) => {
+  const config = {
+    admin: { icon: ShieldCheck, color: 'bg-indigo-600', text: 'Administrative Access - Full System Control' },
+    finance: { icon: Shield, color: 'bg-emerald-600', text: 'Financial Analyst Access - Cost Data & Reporting' },
+    viewer: { icon: Lock, color: 'bg-zinc-700', text: 'ReadOnly Access - Limited Reporting Visibility' },
+  };
+  const { icon: Icon, color, text } = config[role];
+
+  return (
+    <div className={`${color} text-white px-6 py-1 text-xs flex items-center justify-center gap-2 font-medium transition-colors duration-300`}>
+      <Icon className="w-3 h-3" />
+      <span>Currently active: <strong>{role.toUpperCase()}</strong>. {text}</span>
+    </div>
+  );
+};
 
 function App() {
   const location = useLocation();
-  const { role, setRole } = useAuth();
+  const { role, setRole, permissions } = useAuth();
   const [overview, setOverview] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [forecast, setForecast] = useState<any>(null);
@@ -63,7 +81,6 @@ function App() {
 
         setOverview(ovRes.data);
         setHistory(histRes.data);
-        // Support both old (array) and new (object) forecast shapes
         setForecast(Array.isArray(forcRes.data) ? { forecast: forcRes.data, eom_projected_spend: 0 } : forcRes.data);
         setAnomalies(anomRes.data);
         setRecommendations(recRes.data);
@@ -87,22 +104,27 @@ function App() {
           <Settings className="w-6 h-6" /> FinOps AI
         </div>
         <nav className="flex-1 p-4 flex flex-col gap-0.5 overflow-y-auto">
-          {navItems.map(({ to, label, icon: Icon }) => {
+          {navItems.map(({ to, label, icon: Icon, permission }) => {
             const isActive = location.pathname === to;
             const isBudgets = to === '/budgets' && criticalBudgets > 0;
+            const hasAccess = !permission || (permissions as any)[permission];
+
             return (
               <Link
                 key={to}
-                to={to}
-                className={`flex items-center gap-3 p-3 rounded-md transition-colors ${
-                  isActive
+                to={hasAccess ? to : '#'}
+                onClick={(e) => !hasAccess && e.preventDefault()}
+                className={`flex items-center gap-3 p-3 rounded-md transition-all ${!hasAccess
+                  ? 'opacity-40 grayscale cursor-not-allowed hover:bg-transparent'
+                  : isActive
                     ? 'bg-primary/10 text-primary font-medium'
                     : 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200'
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
-                <span className="text-sm">{label}</span>
-                {isBudgets && (
+                <span className="text-sm flex-1">{label}</span>
+                {!hasAccess && <Lock className="w-3 h-3 text-zinc-500" />}
+                {isBudgets && hasAccess && (
                   <span className="ml-auto text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 font-bold">
                     {criticalBudgets}
                   </span>
@@ -118,57 +140,72 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-y-auto">
-        {/* Topbar */}
-        <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-surface/50 sticky top-0 backdrop-blur z-10">
-          <div className="flex items-center gap-4 md:hidden">
-            <Menu className="w-6 h-6" />
-            <span className="font-bold text-lg">FinOps AI</span>
-          </div>
-          <div className="hidden md:flex items-center gap-2 text-sm text-zinc-500">
-            <span className="text-zinc-100 font-medium capitalize">
-              {navItems.find(n => n.to === location.pathname)?.label ?? 'Dashboard'}
-            </span>
-          </div>
-          <div className="ml-auto flex items-center gap-4">
-            <select 
-              value={role} 
-              onChange={(e) => setRole(e.target.value as any)}
-              className="bg-zinc-800 text-sm text-zinc-300 rounded border border-zinc-700 px-2 py-1 outline-none focus:ring-1 focus:ring-violet-500"
-            >
-              <option value="admin">Admin</option>
-              <option value="finance">Finance</option>
-              <option value="viewer">Viewer</option>
-            </select>
-            {criticalBudgets > 0 && (
-              <Link to="/budgets" className="flex items-center gap-1.5 text-xs text-red-400 bg-red-900/30 border border-red-800/50 rounded-full px-3 py-1 hover:bg-red-900/50 transition-colors">
-                <AlertTriangle className="w-3 h-3" />
-                {criticalBudgets} budget{criticalBudgets > 1 ? 's' : ''} over limit
-              </Link>
-            )}
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" title="Backend Online" />
-              <span className="text-xs text-zinc-500 hidden md:block">Live</span>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-violet-700 flex items-center justify-center text-xs font-bold">
-              FO
-            </div>
-          </div>
-        </header>
+        <Header role={role} setRole={setRole} criticalBudgets={criticalBudgets} location={location} />
+        <RoleBanner role={role} />
 
-        <Routes>
-          <Route path="/" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
-          <Route path="/alerts" element={<AnomalyAlertsPage anomalies={anomalies} />} />
-          <Route path="/recommendations" element={<RecommendationsPage recommendations={recommendations} />} />
-          <Route path="/budgets" element={<BudgetsPage />} />
-          <Route path="/forecast" element={<CostForecastPage />} />
-          <Route path="/autopilot" element={<AutopilotPage />} />
-          <Route path="/ai-engine" element={<AIEnginePage />} />
-          <Route path="/organizations" element={<OrganizationsPage />} />
-          <Route path="/service-cost" element={<ServiceCostPage />} />
-          <Route path="/region-cost" element={<RegionCostPage />} />
-          <Route path="/kubernetes-cost" element={<KubernetesCostPage />} />
-        </Routes>
+        <div className="flex-1 overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
+            <Route path="/alerts" element={permissions.canSeeAlerts ? <AnomalyAlertsPage anomalies={anomalies} /> : <PageRestricted title="Alerts Access Restricted" />} />
+            <Route path="/recommendations" element={permissions.canSeeRecommendations ? <RecommendationsPage recommendations={recommendations} /> : <PageRestricted title="Recommendations Restricted" />} />
+            <Route path="/budgets" element={permissions.canSeeBudgets ? <BudgetsPage /> : <PageRestricted title="Budgets Access Restricted" />} />
+            <Route path="/forecast" element={permissions.canSeeForecast ? <CostForecastPage /> : <PageRestricted title="Forecast Access Restricted" />} />
+            <Route path="/autopilot" element={permissions.canSeeAutopilot ? <AutopilotPage /> : <PageRestricted title="Autopilot Restricted" />} />
+            <Route path="/ai-engine" element={permissions.canSeeAIEngine ? <AIEnginePage /> : <PageRestricted title="AI Engine Access Restricted" />} />
+            <Route path="/organizations" element={permissions.canSeeOrganizations ? <OrganizationsPage /> : <PageRestricted title="Organization Access Restricted" />} />
+            <Route path="/service-cost" element={permissions.canSeeServiceCost ? <ServiceCostPage /> : <PageRestricted title="Service Spend Restricted" />} />
+            <Route path="/region-cost" element={permissions.canSeeFinancials ? <RegionCostPage /> : <PageRestricted title="Regional Spend Restricted" />} />
+            <Route path="/kubernetes-cost" element={permissions.canSeeKubernetes ? <KubernetesCostPage /> : <PageRestricted title="K8s Spend Restricted" />} />
+          </Routes>
+        </div>
       </main>
+    </div>
+  );
+}
+
+function Header({ role, setRole, criticalBudgets, location }: any) {
+  return (
+    <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-surface/50 sticky top-0 backdrop-blur z-10">
+      <div className="flex items-center gap-4 md:hidden">
+        <Menu className="w-6 h-6" />
+        <span className="font-bold text-lg">FinOps AI</span>
+      </div>
+      <div className="hidden md:flex items-center gap-2 text-sm text-zinc-500">
+        <span className="text-zinc-100 font-medium capitalize">
+          {navItems.find(n => n.to === location.pathname)?.label ?? 'Dashboard'}
+        </span>
+      </div>
+      <div className="ml-auto flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Active Role:</label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as any)}
+            className="bg-zinc-800 text-xs text-zinc-100 rounded border border-zinc-700 px-3 py-1.5 outline-none focus:ring-1 focus:ring-violet-500 font-medium cursor-pointer"
+          >
+            <option value="admin">Admin</option>
+            <option value="finance">Finance</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        {criticalBudgets > 0 && (
+          <Link to="/budgets" className="flex items-center gap-1.5 text-xs text-red-400 bg-red-900/30 border border-red-800/50 rounded-full px-3 py-1 hover:bg-red-900/50 transition-colors">
+            <AlertTriangle className="w-3 h-3" />
+            {criticalBudgets}
+          </Link>
+        )}
+        <div className="w-8 h-8 rounded-full bg-violet-700 flex items-center justify-center text-xs font-bold ring-2 ring-violet-500/20">
+          FO
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function PageRestricted({ title }: { title: string }) {
+  return (
+    <div className="p-12 flex items-center justify-center h-full">
+      <RestrictedCard title={title} className="max-w-md w-full" />
     </div>
   );
 }
