@@ -64,9 +64,13 @@ function App() {
   const [costByService, setCostByService] = useState<Record<string, number>>({});
   const [resources, setResources] = useState<any[]>([]);
   const [budgetAlerts, setBudgetAlerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const [ovRes, histRes, forcRes, anomRes, recRes, cbsRes, resRes, baRes] = await Promise.all([
           axios.get(`${API_BASE}/api/dashboard/overview`),
@@ -89,6 +93,9 @@ function App() {
         setBudgetAlerts(Array.isArray(baRes.data) ? baRes.data : []);
       } catch (err) {
         console.error('Error fetching data', err);
+        setError('Failed to fetch dashboard data. Please check your connection.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();

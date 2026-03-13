@@ -77,7 +77,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2"><DollarSign className="w-3 h-3" /> Total Potential Savings</div>
           <p className="text-2xl font-bold text-green-400">
-            {permissions.canSeeFinancials ? `$${totalSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}
+            {permissions.canSeeFinancials ? `$${totalSavings?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? '0'}` : "—"}
           </p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
@@ -158,7 +158,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
                     <td className="px-4 py-3 font-medium text-zinc-200 text-xs">{r.recommendation_type}</td>
                     <td className="px-4 py-3 text-zinc-400 text-xs max-w-[260px] leading-relaxed">{r.description}</td>
                     <td className="px-4 py-3 font-bold text-green-400">
-                      {permissions.canSeeFinancials ? `$${r.estimated_savings.toLocaleString()}` : "—"}
+                      {permissions.canSeeFinancials ? `$${r.estimated_savings?.toLocaleString() ?? '0'}` : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`font-semibold ${(r.roi_score ?? 0) >= 50 ? 'text-violet-400' : 'text-zinc-400'}`}>
