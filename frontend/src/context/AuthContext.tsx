@@ -85,15 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isFinance = role === 'finance';
   const isAdminOrFinance = isAdmin || isFinance;
 
-  return (
-    <AuthContext.Provider value={{
-      role,
-      setRole,
-      permissions: ROLE_PERMISSIONS[role],
-      isAdmin,
-      isFinance,
-      isAdminOrFinance
-    }}>
+    const currentPermissions = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.viewer;
+  
+    return (
+      <AuthContext.Provider value={{
+        role,
+        setRole,
+        permissions: currentPermissions,
+        isAdmin,
+        isFinance,
+        isAdminOrFinance
+      }}>
       {children}
     </AuthContext.Provider>
   );

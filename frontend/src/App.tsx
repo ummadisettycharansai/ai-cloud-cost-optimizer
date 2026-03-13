@@ -176,16 +176,16 @@ function App() {
           <Routes>
             <Route path="/" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
             <Route path="/dashboard" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
-            <Route path="/alerts" element={permissions.canSeeAlerts ? <AnomalyAlertsPage anomalies={anomalies} /> : <PageRestricted title="Alerts Access Restricted" />} />
-            <Route path="/recommendations" element={permissions.canSeeRecommendations ? <RecommendationsPage recommendations={recommendations} /> : <PageRestricted title="Recommendations Restricted" />} />
-            <Route path="/budgets" element={permissions.canSeeBudgets ? <BudgetsPage /> : <PageRestricted title="Budgets Access Restricted" />} />
-            <Route path="/forecast" element={permissions.canSeeForecast ? <CostForecastPage /> : <PageRestricted title="Forecast Access Restricted" />} />
-            <Route path="/autopilot" element={permissions.canSeeAutopilot ? <AutopilotPage /> : <PageRestricted title="Autopilot Restricted" />} />
-            <Route path="/ai-engine" element={permissions.canSeeAIEngine ? <AIEnginePage /> : <PageRestricted title="AI Engine Access Restricted" />} />
-            <Route path="/organizations" element={permissions.canSeeOrganizations ? <OrganizationsPage /> : <PageRestricted title="Organization Access Restricted" />} />
-            <Route path="/service-cost" element={permissions.canSeeServiceCost ? <ServiceCostPage /> : <PageRestricted title="Service Spend Restricted" />} />
-            <Route path="/region-cost" element={permissions.canSeeFinancials ? <RegionCostPage /> : <PageRestricted title="Regional Spend Restricted" />} />
-            <Route path="/kubernetes-cost" element={permissions.canSeeKubernetes ? <KubernetesCostPage /> : <PageRestricted title="K8s Spend Restricted" />} />
+            <Route path="/alerts" element={permissions?.canSeeAlerts ? <AnomalyAlertsPage anomalies={anomalies} /> : <PageRestricted title="Alerts Access Restricted" />} />
+            <Route path="/recommendations" element={permissions?.canSeeRecommendations ? <RecommendationsPage recommendations={recommendations} /> : <PageRestricted title="Recommendations Restricted" />} />
+            <Route path="/budgets" element={permissions?.canSeeBudgets ? <BudgetsPage /> : <PageRestricted title="Budgets Access Restricted" />} />
+            <Route path="/forecast" element={permissions?.canSeeForecast ? <CostForecastPage /> : <PageRestricted title="Forecast Access Restricted" />} />
+            <Route path="/autopilot" element={permissions?.canSeeAutopilot ? <AutopilotPage /> : <PageRestricted title="Autopilot Restricted" />} />
+            <Route path="/ai-engine" element={permissions?.canSeeAIEngine ? <AIEnginePage /> : <PageRestricted title="AI Engine Access Restricted" />} />
+            <Route path="/organizations" element={permissions?.canSeeOrganizations ? <OrganizationsPage /> : <PageRestricted title="Organization Access Restricted" />} />
+            <Route path="/service-cost" element={permissions?.canSeeServiceCost ? <ServiceCostPage /> : <PageRestricted title="Service Spend Restricted" />} />
+            <Route path="/region-cost" element={permissions?.canSeeFinancials ? <RegionCostPage /> : <PageRestricted title="Regional Spend Restricted" />} />
+            <Route path="/kubernetes-cost" element={permissions?.canSeeKubernetes ? <KubernetesCostPage /> : <PageRestricted title="K8s Spend Restricted" />} />
           </Routes>
         </div>
       </main>
