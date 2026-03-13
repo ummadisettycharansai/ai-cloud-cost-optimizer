@@ -60,7 +60,6 @@ function App() {
   const [history, setHistory] = useState<any[]>([]);
   const [forecast, setForecast] = useState<any>(null);
   const [anomalies, setAnomalies] = useState<any[]>([]);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [costByService, setCostByService] = useState<Record<string, number>>({});
   const [resources, setResources] = useState<any[]>([]);
   const [budgetAlerts, setBudgetAlerts] = useState<any[]>([]);
@@ -72,12 +71,11 @@ function App() {
       setLoading(true);
       setError(null);
       try {
-        const [ovRes, histRes, forcRes, anomRes, recRes, cbsRes, resRes, baRes] = await Promise.all([
+        const [ovRes, histRes, forcRes, anomRes, cbsRes, resRes, baRes] = await Promise.all([
           axios.get(`${API_BASE}/api/dashboard/overview`),
           axios.get(`${API_BASE}/api/cost-history`),
           axios.get(`${API_BASE}/api/forecast`),
           axios.get(`${API_BASE}/api/anomalies`),
-          axios.get(`${API_BASE}/api/recommendations`),
           axios.get(`${API_BASE}/api/cost-by-service`),
           axios.get(`${API_BASE}/api/resources`),
           axios.get(`${API_BASE}/api/budget-alerts`),
@@ -87,7 +85,6 @@ function App() {
         setHistory(Array.isArray(histRes.data) ? histRes.data : []);
         setForecast(Array.isArray(forcRes.data) ? { forecast: forcRes.data, eom_projected_spend: 0 } : forcRes.data || { forecast: [], eom_projected_spend: 0 });
         setAnomalies(Array.isArray(anomRes.data) ? anomRes.data : []);
-        setRecommendations(Array.isArray(recRes.data) ? recRes.data : []);
         setCostByService(cbsRes.data || {});
         setResources(Array.isArray(resRes.data) ? resRes.data : []);
         setBudgetAlerts(Array.isArray(baRes.data) ? baRes.data : []);
@@ -177,7 +174,7 @@ function App() {
             <Route path="/" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
             <Route path="/dashboard" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
             <Route path="/alerts" element={permissions?.canSeeAlerts ? <AnomalyAlertsPage anomalies={anomalies} /> : <PageRestricted title="Alerts Access Restricted" />} />
-            <Route path="/recommendations" element={permissions?.canSeeRecommendations ? <RecommendationsPage recommendations={recommendations} /> : <PageRestricted title="Recommendations Restricted" />} />
+            <Route path="/recommendations" element={permissions?.canSeeRecommendations ? <RecommendationsPage /> : <PageRestricted title="Recommendations Restricted" />} />
             <Route path="/budgets" element={permissions?.canSeeBudgets ? <BudgetsPage /> : <PageRestricted title="Budgets Access Restricted" />} />
             <Route path="/forecast" element={permissions?.canSeeForecast ? <CostForecastPage /> : <PageRestricted title="Forecast Access Restricted" />} />
             <Route path="/autopilot" element={permissions?.canSeeAutopilot ? <AutopilotPage /> : <PageRestricted title="Autopilot Restricted" />} />

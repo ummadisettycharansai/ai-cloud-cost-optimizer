@@ -8,7 +8,6 @@ import {
   AlertCircle, 
   Filter,
   ArrowUpDown,
-  Trash2,
   CheckCircle,
   XCircle,
   Loader2
