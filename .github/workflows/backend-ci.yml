@@ -14,6 +14,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     defaults:
       run:
         working-directory: ./backend
@@ -43,11 +45,13 @@ jobs:
     - name: Check formatting with Black
       run: black --check .
 
-    - name: Test with pytest
-      run: |
-        PYTHONPATH=. pytest --cov=. --cov-report=xml
+    - name: Run Backend Tests with Coverage Quality Gate
+      working-directory: ./backend
+      # Quality Gate: Fail pipeline if coverage is below 80%
+      run: PYTHONPATH=..:. pytest --cov=. --cov-fail-under=80 --cov-report=xml
         
     - name: Upload coverage reports to Codecov
+      if: env.CODECOV_TOKEN != ''
       uses: codecov/codecov-action@v3
       env:
-        CODECOV_TOKEN: ${{ secrets['CODECOV_TOKEN'] }}
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

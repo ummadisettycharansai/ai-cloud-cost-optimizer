@@ -3,7 +3,7 @@ FastAPI Security Dependencies
 Provides Depends() functions for JWT validation and role-based access control.
 """
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ def require_role(minimum_role: str = "engineer"):
     Returns a FastAPI dependency factory that enforces a minimum role level.
     Usage: @app.get("/admin-only", dependencies=[Depends(require_role("admin"))])
     """
-    def _check_role(user: dict = None):
+    def _check_role(user: Optional[Dict[str, Any]] = None):
         role = user.get("role", "engineer") if user else "engineer"
         user_level = ROLE_HIERARCHY.get(role, 0)
         required_level = ROLE_HIERARCHY.get(minimum_role, 1)

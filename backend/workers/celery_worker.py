@@ -46,9 +46,9 @@ def _sync_provider(provider_name: str) -> dict:
     import crud # pyre-ignore[21]
     from models import CostHistory # pyre-ignore[21]
     from cloud_integrations.credential_manager import get_credential_manager
-    from cloud_integrations.aws_connector import AWSConnector
-    from cloud_integrations.azure_connector import AzureConnector
-    from cloud_integrations.gcp_connector import GCPConnector
+    from cloud_integrations.aws_connector import AWSConnector  # pyre-ignore[21]
+    from cloud_integrations.azure_connector import AzureConnector  # pyre-ignore[21]
+    from cloud_integrations.gcp_connector import GCPConnector  # pyre-ignore[21]
     import json
     
     # Try importing kafka for event pushing; gracefully fallback if missing
@@ -64,8 +64,8 @@ def _sync_provider(provider_name: str) -> dict:
 
     db = SessionLocal()
     mgr = get_credential_manager()
-    total_records = 0
-    accounts_synced = 0
+    total_records: int = 0
+    accounts_synced: int = 0
 
     try:
         accounts = [acc for acc in crud.get_cloud_accounts(db) if acc.provider == provider_name and acc.enabled]
@@ -104,11 +104,11 @@ def _sync_provider(provider_name: str) -> dict:
                 
             # Fetch cost data for yesterday
             try:
-                if provider_name == "aws":
+                if provider_name == "aws" and conn:
                     cost_data = conn.get_cost_by_service(days=2)
-                elif provider_name == "azure":
+                elif provider_name == "azure" and conn:
                     cost_data = conn.get_cost_data(days=2)
-                elif provider_name == "gcp":
+                elif provider_name == "gcp" and conn:
                     cost_data = conn.get_project_cost(days=2)
                 else:
                     cost_data = []
@@ -125,7 +125,7 @@ def _sync_provider(provider_name: str) -> dict:
                     anomaly_score=0.0
                 )
                 db.add(db_record)
-                total_records += 1
+                total_records = int(total_records) + 1  # pyre-ignore[6, 58]
                 
                 # Push event to Kafka
                 if producer:
@@ -137,15 +137,15 @@ def _sync_provider(provider_name: str) -> dict:
                         "date": record["date"],
                         "cost": record["cost"]
                     }
-                    producer.send("cloud-cost-events", event)
+                    producer.send("cloud-cost-events", event) # pyre-ignore[16]
 
             # Mark synced
             crud.update_cloud_account_sync_time(db, account.id)
-            accounts_synced += 1
+            accounts_synced = int(accounts_synced) + 1  # pyre-ignore[6, 58]
 
         db.commit()
         if producer:
-            producer.flush()
+            producer.flush()  # pyre-ignore[16]
             
     finally:
         db.close()

@@ -5,6 +5,7 @@ Models are stored in the 'model_store/' directory relative to the backend root.
 """
 import os
 import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class ModelRegistry:
     In production this would be replaced by MLflow or AWS SageMaker Model Registry.
     """
 
-    def __init__(self, store_dir: str = None):
+    def __init__(self, store_dir: Optional[str] = None):
         self.store_dir = store_dir or MODEL_STORE_DIR
         os.makedirs(self.store_dir, exist_ok=True)
 

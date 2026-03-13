@@ -18,8 +18,8 @@ class KubernetesService:
              costs.append({
                  "cluster_name": "primary-eks-cluster",
                  "namespace": ns,
-                 "monthly_cost": round(random.uniform(100, 1500), 2),
-                 "cpu_utilization": round(random.uniform(20, 90), 2),
-                 "memory_utilization": round(random.uniform(30, 85), 2)
+                 "monthly_cost": round(float(random.uniform(100, 1500)), 2),  # pyre-ignore[6]
+                 "cpu_utilization": round(float(random.uniform(20, 90)), 2),  # pyre-ignore[6]
+                 "memory_utilization": round(float(random.uniform(30, 85)), 2)  # pyre-ignore[6]
              })
         return costs

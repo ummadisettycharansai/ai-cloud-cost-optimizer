@@ -15,12 +15,12 @@ def compute_rolling_stats(data: List[Dict], window: int = 7) -> List[Dict]:
     Input: [{"date": "2024-01-01", "cost": 150.0}, ...]
     Output: same list with added 'rolling_mean', 'rolling_std', 'z_score' fields.
     """
-    costs = [d.get("cost", 0.0) for d in data]
+    costs: List[float] = [float(d.get("cost", 0.0)) for d in data]
     enriched = []
 
     for i, record in enumerate(data):
         start = max(0, i - window + 1)
-        window_costs = costs[start : i + 1]
+        window_costs = costs[start : i + 1]  # pyre-ignore[6]
 
         roll_mean = statistics.mean(window_costs) if window_costs else 0.0
         roll_std = statistics.stdev(window_costs) if len(window_costs) > 1 else 0.0
@@ -28,9 +28,9 @@ def compute_rolling_stats(data: List[Dict], window: int = 7) -> List[Dict]:
 
         enriched.append({
             **record,
-            "rolling_mean": round(roll_mean, 4),
-            "rolling_std": round(roll_std, 4),
-            "z_score": round(z_score, 4),
+            "rolling_mean": round(float(roll_mean), 4),  # pyre-ignore[6]
+            "rolling_std": round(float(roll_std), 4),  # pyre-ignore[6]
+            "z_score": round(float(z_score), 4),  # pyre-ignore[6]
         })
 
     return enriched

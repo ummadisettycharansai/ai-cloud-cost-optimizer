@@ -83,6 +83,8 @@ class AzureService:
             return
 
         try:
+            if settings is None:
+                raise ValueError("Settings not initialized")
             credential = ClientSecretCredential(
                 tenant_id=settings.azure_tenant_id,
                 client_id=settings.azure_client_id,
@@ -142,7 +144,9 @@ class AzureService:
                 ),
             )
 
-            result = self.client.query.usage(scope=scope, parameters=query)
+            if self.client is None:
+                raise ValueError("Azure client is not initialized")
+            result = self.client.query.usage(scope=scope, parameters=query)  # pyre-ignore[16]
 
             daily_totals: Dict[str, float] = {}
             columns = [col.name for col in result.columns]
@@ -153,14 +157,14 @@ class AzureService:
                 raw_date = str(row[date_idx])
                 # UsageDate comes as int YYYYMMDD
                 if len(raw_date) == 8:
-                    date_str = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+                    date_str = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}" # pyre-ignore[6]
                 else:
-                    date_str = raw_date[:10]
+                    date_str = raw_date[:10] # pyre-ignore[6]
                 cost = float(row[cost_idx])
                 daily_totals[date_str] = daily_totals.get(date_str, 0.0) + cost
 
             return [
-                {"date": d, "cost": round(c, 2)}
+                {"date": d, "cost": round(float(c), 2)}  # pyre-ignore[6]
                 for d, c in sorted(daily_totals.items())
             ]
 
@@ -185,9 +189,9 @@ class AzureService:
                 "region": self.MOCK_REGIONS[i % len(self.MOCK_REGIONS)],
                 "account_id": self.subscription_id or "mock-subscription",
                 "status": status,
-                "monthly_cost": round(40.0 + i * 16.7, 2),
+                "monthly_cost": round(float(40.0 + i * 16.7), 2),  # pyre-ignore[6]
                 "cpu_utilization": (
-                    round(random.uniform(5.0, 70.0), 2)
+                    round(float(random.uniform(5.0, 70.0)), 2)  # pyre-ignore[6]
                     if status == "running" else 0.0
                 ),
             })
@@ -201,5 +205,5 @@ class AzureService:
             cost = base + (i * 1.0) + random.uniform(-40, 50)
             if random.random() < 0.035:
                 cost += random.uniform(150, 400)
-            history.append({"date": str(date), "cost": round(float(max(0, cost)), 2)})
+            history.append({"date": str(date), "cost": round(float(max(0.0, cost)), 2)})  # pyre-ignore[6]
         return history

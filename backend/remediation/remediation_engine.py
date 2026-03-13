@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session # pyre-ignore[21]
 import crud # pyre-ignore[21]
 import requests
@@ -21,7 +21,7 @@ class RemediationEngine:
     def __init__(self, db_session: Session):
         self.db = db_session
 
-    def process_recommendation(self, org_id: int, rec: Dict[str, Any]) -> getattr(crud, "Optional", None)[AutopilotAction]: # type: ignore
+    def process_recommendation(self, org_id: int, rec: Dict[str, Any]) -> Optional[AutopilotAction]:
         """
         Evaluate a single recommendation and attempt auto-remediation.
         `rec` expects keys: resource_id, service_name, recommendation_type, estimated_savings

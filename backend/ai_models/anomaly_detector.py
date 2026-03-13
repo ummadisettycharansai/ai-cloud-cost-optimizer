@@ -41,7 +41,7 @@ class CostAnomalyDetector:
         # Normalise scores to [0, 1] where 1 = most anomalous
         min_s, max_s = raw_scores.min(), raw_scores.max()
         span = max_s - min_s if max_s != min_s else 1.0
-        normalised = [round(float(1.0 - (s - min_s) / span), 4) for s in raw_scores]
+        normalised = [round(float(1.0 - (s - min_s) / span), 4) for s in raw_scores]  # pyre-ignore[6]
 
         df['is_anomaly'] = preds == -1
         df['anomaly_score'] = normalised

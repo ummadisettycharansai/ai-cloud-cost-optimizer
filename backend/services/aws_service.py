@@ -50,6 +50,8 @@ class AWSService:
             return
 
         try:
+            if boto3 is None:
+                raise ImportError("boto3 is not available")
             session = boto3.Session()
             sts = session.client("sts")
             identity = sts.get_caller_identity()
@@ -79,8 +81,10 @@ class AWSService:
         resources: List[Dict[str, Any]] = []
         try:
             # EC2 instances
-            ec2_resp = self.ec2_client.describe_instances()
-            region = self.ec2_client.meta.region_name
+            if self.ec2_client is None:
+                raise ValueError("EC2 client is not initialized")
+            ec2_resp = self.ec2_client.describe_instances()  # pyre-ignore[16]
+            region = self.ec2_client.meta.region_name  # pyre-ignore[16]
             for reservation in ec2_resp.get("Reservations", []):
                 for inst in reservation.get("Instances", []):
                     state = inst.get("State", {}).get("Name", "unknown")
@@ -91,15 +95,17 @@ class AWSService:
                         "region": region,
                         "account_id": self.account_id,
                         "status": state,
-                        "monthly_cost": round(random.uniform(5.0, 300.0), 2),
+                        "monthly_cost": round(float(random.uniform(5.0, 300.0)), 2),  # pyre-ignore[6]
                         "cpu_utilization": (
-                            round(random.uniform(0.5, 95.0), 2)
+                            round(float(random.uniform(0.5, 95.0)), 2)  # pyre-ignore[6]
                             if state == "running" else 0.0
                         ),
                     })
 
             # S3 buckets
-            s3_resp = self.s3_client.list_buckets()
+            if self.s3_client is None:
+                raise ValueError("S3 client is not initialized")
+            s3_resp = self.s3_client.list_buckets()  # pyre-ignore[16]
             for bucket in s3_resp.get("Buckets", []):
                 resources.append({
                     "provider": "AWS",
@@ -108,7 +114,7 @@ class AWSService:
                     "region": "global",
                     "account_id": self.account_id,
                     "status": "active",
-                    "monthly_cost": round(random.uniform(1.0, 50.0), 2),
+                    "monthly_cost": round(float(random.uniform(1.0, 50.0)), 2),  # pyre-ignore[6]
                     "cpu_utilization": 0.0,
                 })
 
@@ -135,7 +141,9 @@ class AWSService:
         start_date = end_date - datetime.timedelta(days=days)
 
         try:
-            response = self.ce_client.get_cost_and_usage(
+            if self.ce_client is None:
+                raise ValueError("Cost Explorer client is not initialized")
+            response = self.ce_client.get_cost_and_usage(  # pyre-ignore[16]
                 TimePeriod={
                     "Start": start_date.strftime("%Y-%m-%d"),
                     "End": end_date.strftime("%Y-%m-%d"),
@@ -162,7 +170,7 @@ class AWSService:
                     )
                     history.append({
                         "date": date_str,
-                        "cost": round(cost_val, 4),
+                        "cost": round(float(cost_val), 4),  # pyre-ignore[6]
                         "service": service,
                         "region": region,
                         "provider": "AWS",
@@ -176,7 +184,7 @@ class AWSService:
                 daily_totals[d] = daily_totals.get(d, 0.0) + entry["cost"]
 
             return [
-                {"date": d, "cost": round(c, 2)}
+                {"date": d, "cost": round(float(c), 2)}  # pyre-ignore[6]
                 for d, c in sorted(daily_totals.items())
             ]
 
@@ -192,7 +200,9 @@ class AWSService:
         end_date = datetime.date.today()
         start_date = end_date - datetime.timedelta(days=days)
         try:
-            response = self.ce_client.get_cost_and_usage(
+            if self.ce_client is None:
+                raise ValueError("Cost Explorer client is not initialized")
+            response = self.ce_client.get_cost_and_usage(  # pyre-ignore[16]
                 TimePeriod={
                     "Start": start_date.strftime("%Y-%m-%d"),
                     "End": end_date.strftime("%Y-%m-%d"),
@@ -212,7 +222,7 @@ class AWSService:
                     )
                     results.append({
                         "account_id": acct,
-                        "cost": round(cost, 2),
+                        "cost": round(float(cost), 2),  # pyre-ignore[6]
                         "provider": "AWS",
                     })
             return results
@@ -230,7 +240,7 @@ class AWSService:
         for i in range(18):
             service = self.MOCK_SERVICES[i % len(self.MOCK_SERVICES)]
             status = "stopped" if i % 7 == 0 else "running"
-            cpu = round(random.uniform(1.5, 88.0), 2) if status == "running" and "EC2" in service else 0.0
+            cpu = round(float(random.uniform(1.5, 88.0)), 2) if status == "running" and "EC2" in service else 0.0 # pyre-ignore[6]
             resources.append({
                 "provider": "AWS",
                 "service_name": service,
@@ -238,7 +248,7 @@ class AWSService:
                 "region": self.MOCK_REGIONS[i % len(self.MOCK_REGIONS)],
                 "account_id": "123456789012",
                 "status": status,
-                "monthly_cost": round(10.0 + i * 18.5, 2),
+                "monthly_cost": round(float(10.0 + i * 18.5), 2),  # pyre-ignore[6]
                 "cpu_utilization": cpu,
             })
         return resources
@@ -251,5 +261,5 @@ class AWSService:
             cost = base + (i * 1.2) + random.uniform(-45, 55)
             if random.random() < 0.04:  # ~4 % anomaly spikes
                 cost += random.uniform(250, 600)
-            history.append({"date": str(date), "cost": round(float(max(0, cost)), 2)})
+            history.append({"date": str(date), "cost": round(float(max(0.0, cost)), 2)})  # pyre-ignore[6]
         return history

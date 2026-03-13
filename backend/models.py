@@ -1,7 +1,7 @@
 from sqlalchemy import (  # pyre-ignore[21]
     Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Text
 )
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func  # pyre-ignore[21]
 from sqlalchemy.orm import relationship  # pyre-ignore[21]
 from database import Base  # pyre-ignore[21]
 import datetime

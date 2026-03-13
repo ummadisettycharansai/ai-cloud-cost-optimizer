@@ -30,13 +30,13 @@ def _priority(savings: float) -> str:
 def _roi_score(savings: float, monthly_cost: float) -> float:
     if monthly_cost <= 0:
         return 0.0
-    return round(savings / monthly_cost * 100, 1)
+    return round(float(savings), 2),  # pyre-ignore[6]/ monthly_cost * 100), 1)  # pyre-ignore[6]
 
 
 def _payback_months(monthly_cost: float, savings: float) -> float:
     if savings <= 0:
         return 99.0
-    return round(min(monthly_cost / savings, 24.0), 1)
+    return round(float(min(monthly_cost / savings, 24.0)), 1)  # pyre-ignore[6]
 
 
 def _enrich(rec: Dict[str, Any], monthly_cost: float) -> Dict[str, Any]:
@@ -79,10 +79,10 @@ class RecommendationEngine:
                             "provider": provider,
                             "recommendation_type": "Shutdown Idle Instance",
                             "description": f"Instance {rid} has <5% CPU. Stop immediately to eliminate cost.",
-                            "estimated_savings": round(cost, 2),
+                            "estimated_savings": round(float(cost), 2),  # pyre-ignore[6]
                         }, cost))
                     elif cpu < 20.0:
-                        savings = round(cost * 0.5, 2)
+                        savings = round(float(cost * 0.5), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -92,7 +92,7 @@ class RecommendationEngine:
                             "estimated_savings": savings,
                         }, cost))
                     elif cpu > 70.0:
-                        savings = round(cost * 0.35, 2)
+                        savings = round(float(cost * 0.35), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -103,7 +103,7 @@ class RecommendationEngine:
                         }, cost))
 
                 elif svc == "Amazon S3":
-                    savings = round(cost * 0.45, 2)
+                    savings = round(float(cost * 0.45), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -114,7 +114,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif svc == "Amazon RDS" and cost > 200:
-                    savings = round(cost * 0.30, 2)
+                    savings = round(float(cost * 0.30), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -125,7 +125,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif svc == "AWS Lambda" and cost > 100:
-                    savings = round(cost * 0.20, 2)
+                    savings = round(float(cost * 0.20), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -136,7 +136,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif svc == "Amazon CloudFront" and cost > 50:
-                    savings = round(cost * 0.15, 2)
+                    savings = round(float(cost * 0.15), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -147,7 +147,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif svc == "Amazon EKS":
-                    savings = round(cost * 0.25, 2)
+                    savings = round(float(cost * 0.25), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -161,7 +161,7 @@ class RecommendationEngine:
             elif provider == "GCP":
                 if "Compute Engine" in svc:
                     if cpu < 20.0:
-                        savings = round(cost * 0.40, 2)
+                        savings = round(float(cost * 0.40), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -171,7 +171,7 @@ class RecommendationEngine:
                             "estimated_savings": savings,
                         }, cost))
                     elif cpu > 70.0:
-                        savings = round(cost * 0.30, 2)
+                        savings = round(float(cost * 0.30), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -182,7 +182,7 @@ class RecommendationEngine:
                         }, cost))
 
                 elif "Cloud Storage" in svc:
-                    savings = round(cost * 0.40, 2)
+                    savings = round(float(cost * 0.40), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -193,7 +193,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif "BigQuery" in svc and cost > 150:
-                    savings = round(cost * 0.25, 2)
+                    savings = round(float(cost * 0.25), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -204,7 +204,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif "Kubernetes Engine" in svc:
-                    savings = round(cost * 0.20, 2)
+                    savings = round(float(cost * 0.20), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -218,7 +218,7 @@ class RecommendationEngine:
             elif provider == "Azure":
                 if "Virtual Machines" in svc or "Compute" in svc:
                     if cpu < 20.0:
-                        savings = round(cost * 0.45, 2)
+                        savings = round(float(cost * 0.45), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -228,7 +228,7 @@ class RecommendationEngine:
                             "estimated_savings": savings,
                         }, cost))
                     elif cpu > 70.0:
-                        savings = round(cost * 0.30, 2)
+                        savings = round(float(cost * 0.30), 2)
                         recommendations.append(_enrich({
                             "resource_id": rid,
                             "service_name": svc,
@@ -239,7 +239,7 @@ class RecommendationEngine:
                         }, cost))
 
                 elif "Blob Storage" in svc or "Storage" in svc:
-                    savings = round(cost * 0.35, 2)
+                    savings = round(float(cost * 0.35), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -250,7 +250,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif "SQL" in svc and cost > 200:
-                    savings = round(cost * 0.30, 2)
+                    savings = round(float(cost * 0.30), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,
@@ -261,7 +261,7 @@ class RecommendationEngine:
                     }, cost))
 
                 elif "Kubernetes" in svc:
-                    savings = round(cost * 0.20, 2)
+                    savings = round(float(cost * 0.20), 2)
                     recommendations.append(_enrich({
                         "resource_id": rid,
                         "service_name": svc,

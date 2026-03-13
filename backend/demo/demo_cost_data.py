@@ -22,7 +22,7 @@ def generate_demo_costs(days: int = 30):
         
         for s in services:
             # Generate realistic random costs between $10 and $200
-            cost = round(random.uniform(10.0, 200.0), 2)
+            cost = round(random.uniform(10.0, 200.0), 2)  # pyre-ignore[6]
             
             data.append({
                 "date": date_str,

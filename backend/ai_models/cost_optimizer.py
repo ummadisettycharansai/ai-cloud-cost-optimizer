@@ -26,7 +26,7 @@ def _compute_efficiency_score(resource: Dict[str, Any]) -> float:
     if status in ('stopped', 'terminated', 'deallocated'):
         # Stopped resources that still incur cost are wasteful
         if cost > 0:
-            return max(0.0, round(5.0 - min(cost / 10.0, 5.0), 1))
+            return max(0.0, round(float(5.0 - min(cost / 10.0, 5.0)), 1))  # pyre-ignore[6]
         return 100.0  # Free stopped resource
 
     if cost <= 0:
@@ -46,7 +46,7 @@ def _compute_efficiency_score(resource: Dict[str, Any]) -> float:
     elif cpu < 10:
         raw_score -= 15.0
 
-    return round(min(max(raw_score, 0.0), 100.0), 1)
+    return round(float(min(max(raw_score, 0.0), 100.0)), 1)  # pyre-ignore[6]
 
 
 class CloudCostOptimizer:
@@ -83,7 +83,7 @@ class CloudCostOptimizer:
             if r.get('efficiency_score', 100.0) <= max_score
         ]
         wasteful.sort(key=lambda r: (r.get('efficiency_score', 0), -r.get('monthly_cost', 0)))
-        return wasteful[:top_n]
+        return wasteful[:top_n]  # pyre-ignore[6]
 
     def efficiency_summary(
         self,
@@ -101,9 +101,9 @@ class CloudCostOptimizer:
             }
 
         scores = [r.get('efficiency_score', 0.0) for r in scored_resources]
-        avg_score = round(sum(scores) / len(scores), 1)
+        avg_score = round(float(sum(scores) / len(scores)), 1)  # pyre-ignore[6]
         wasteful_count = sum(1 for s in scores if s <= 50.0)
-        waste_ratio = round(wasteful_count / len(scores) * 100, 1)
+        waste_ratio = round(float(wasteful_count / len(scores) * 100), 1)  # pyre-ignore[6]
 
         # Per-provider breakdown
         by_provider: Dict[str, Any] = {}
@@ -122,7 +122,7 @@ class CloudCostOptimizer:
 
         for prov, data in by_provider.items():
             s_list = data.pop("_scores")
-            data["avg_efficiency"] = round(sum(s_list) / len(s_list), 1)
+            data["avg_efficiency"] = round(float(sum(s_list) / len(s_list)), 1)  # pyre-ignore[6]
             data["total_cost"] = round(data["total_cost"], 2)
 
         return {

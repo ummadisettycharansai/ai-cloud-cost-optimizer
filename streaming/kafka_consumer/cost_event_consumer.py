@@ -72,7 +72,7 @@ def _persist_cost_history(event: Dict[str, Any]) -> None:
                 region=event.get("region", "global"),
                 provider=event.get("provider", "AWS"),
                 account_id=event.get("account_id", ""),
-                daily_cost=float(event.get("daily_cost", 0.0)),
+                daily_cost=float(event.get("daily_cost") or 0.0),
             )
             db.add(record)
             db.commit()
@@ -142,10 +142,10 @@ def _check_budgets(db_session) -> None:
 def _run_autopilot(db_session) -> None:
     """Evaluate optimization recommendations and run Auto-Remediation."""
     try:
-        from models import CloudResource
-        import crud
-        from optimizer.recommendation_engine import RecommendationEngine
-        from remediation.remediation_engine import RemediationEngine
+        from models import CloudResource  # pyre-ignore[21]
+        import crud  # pyre-ignore[21]
+        from optimizer.recommendation_engine import RecommendationEngine  # pyre-ignore[21]
+        from remediation.remediation_engine import RemediationEngine  # pyre-ignore[21]
 
         resources = db_session.query(CloudResource).all()
         active = [
@@ -222,7 +222,7 @@ class CostEventConsumer:
         provider = event.get("provider", event.get("cloud_provider", "Unknown"))
         service = event.get("service", "Unknown")
         region = event.get("region", "global")
-        cost = float(event.get("daily_cost", event.get("cost", 0.0)))
+        cost = float(event.get("daily_cost") or event.get("cost") or 0.0)
 
         logger.info(
             f"Event received: [{provider}] {service} @ {region} = ${cost:.2f}"
@@ -250,26 +250,29 @@ class CostEventConsumer:
             logger.info("Consumer not running (Kafka unavailable or disabled).")
             return
 
-        retry_delay = 1
+        retry_delay: int = 1
         logger.info("Cost event consumer starting...")
 
         while not self._stop_event.is_set():
             try:
-                for message in self.consumer:
-                    if self._stop_event.is_set():
-                        break
-                    try:
-                        self.process_event(message.value)
-                        retry_delay = 1  # Reset backoff on success
-                    except Exception as exc:
-                        logger.error(f"Error processing message: {exc}")
+                if self.consumer is None:
+                    break
+                if self.consumer:
+                    for message in self.consumer:  # pyre-ignore[29]
+                        if self._stop_event.is_set():
+                            break
+                        try:
+                            self.process_event(message.value)
+                            retry_delay = 1  # Reset backoff on success
+                        except Exception as exc:
+                            logger.error(f"Error processing message: {exc}")
             except Exception as exc:
                 logger.error(f"Consumer loop error: {exc}. Retrying in {retry_delay}s...")
-                time.sleep(retry_delay)
-                retry_delay = min(retry_delay * 2, 60)  # Exponential backoff, max 60s
+                time.sleep(float(retry_delay))
+                retry_delay = int(min(int(retry_delay) * 2, 60))  # pyre-ignore[6]
 
         if self.consumer:
-            self.consumer.close()
+            self.consumer.close()  # pyre-ignore[16]
             logger.info("Kafka consumer closed.")
 
     def start_background(self) -> threading.Thread:

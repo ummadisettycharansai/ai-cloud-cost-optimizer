@@ -68,9 +68,12 @@ class GCPService:
         try:
             self.billing_client = billing.CloudBillingClient()
             # Quick connectivity check
-            self.billing_client.get_billing_account(
-                name=self.billing_account_id
-            )
+            if self.billing_client is not None:
+                self.billing_client.get_billing_account(  # pyre-ignore[16]
+                    name=self.billing_account_id
+                )
+            else:
+                raise ImportError("billing_client is None")
             self.use_mock = False
             logger.info(
                 f"GCP authenticated — Billing account: {self.billing_account_id}"
@@ -93,7 +96,9 @@ class GCPService:
             projects_request = billing.ListProjectBillingInfoRequest(
                 name=self.billing_account_id
             )
-            for proj_billing in self.billing_client.list_project_billing_info(
+            if self.billing_client is None:
+                raise ValueError("Billing client is not initialized")
+            for proj_billing in self.billing_client.list_project_billing_info(  # pyre-ignore[16]
                 request=projects_request
             ):
                 proj_id = proj_billing.project_id
@@ -146,9 +151,9 @@ class GCPService:
                 "region": self.MOCK_REGIONS[i % len(self.MOCK_REGIONS)],
                 "account_id": self.billing_account_id or "mock-billing-acct",
                 "status": status,
-                "monthly_cost": round(30.0 + i * 14.3, 2),
+                "monthly_cost": round(float(30.0 + i * 14.3), 2),  # pyre-ignore[6]
                 "cpu_utilization": (
-                    round(random.uniform(8.0, 75.0), 2)
+                    round(float(random.uniform(8.0, 75.0)), 2)  # pyre-ignore[6]
                     if status == "running" else 0.0
                 ),
             })
@@ -162,5 +167,5 @@ class GCPService:
             cost = base + (i * 0.8) + random.uniform(-30, 40)
             if random.random() < 0.03:
                 cost += random.uniform(100, 300)
-            history.append({"date": str(date), "cost": round(float(max(0, cost)), 2)})
+            history.append({"date": str(date), "cost": round(float(max(0.0, cost)), 2)})  # pyre-ignore[6]
         return history

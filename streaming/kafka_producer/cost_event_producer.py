@@ -8,6 +8,7 @@ Falls back gracefully if Kafka broker is unavailable (e.g. local dev without Doc
 import json
 import logging
 import datetime
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ KAFKA_BOOTSTRAP_SERVERS = ["localhost:9092"]
 class CostEventProducer:
     """Publishes cost events to Kafka. Safe to instantiate even without a broker."""
 
-    def __init__(self, bootstrap_servers: list = None):
+    def __init__(self, bootstrap_servers: Optional[list] = None):
         self.producer = None
         self.enabled = False
 
@@ -63,7 +64,7 @@ class CostEventProducer:
             "cloud_provider": cloud_provider,
             "service": service,
             "region": region,
-            "cost": round(cost, 4),
+            "cost": round(float(cost), 4),  # pyre-ignore[6]
         }
 
         if not self.enabled or self.producer is None:
@@ -71,7 +72,9 @@ class CostEventProducer:
             return False
 
         try:
-            future = self.producer.send(
+            if self.producer is None:
+                return False
+            future = self.producer.send(  # pyre-ignore[16]
                 KAFKA_TOPIC,
                 key=f"{cloud_provider}:{service}:{region}",
                 value=event,
@@ -91,16 +94,16 @@ class CostEventProducer:
                 cloud_provider=e.get("cloud_provider", "Unknown"),
                 service=e.get("service", "Unknown"),
                 region=e.get("region", "global"),
-                cost=float(e.get("cost", 0.0)),
+                cost=float(e.get("cost") or 0.0),
             )
             if ok:
-                success += 1
-        return success
+                success = int(success) + 1  # pyre-ignore[6, 58]
+        return int(success)  # pyre-ignore[7]
 
     def close(self):
         if self.producer:
-            self.producer.flush()
-            self.producer.close()
+            self.producer.flush()  # pyre-ignore[16]
+            self.producer.close()  # pyre-ignore[16]
 
 # Default singleton instance
 producer = CostEventProducer()

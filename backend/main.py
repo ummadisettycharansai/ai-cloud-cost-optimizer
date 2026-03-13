@@ -17,7 +17,7 @@ from schemas import (
     AutopilotRunResult, CloudAccountOut, CloudAccountCreateAWS,
     CloudAccountCreateAzure, CloudAccountCreateGCP
 )
-from crud import (
+from crud import (  # pyre-ignore[21]
     get_autopilot_actions, create_organization, get_organizations,
     get_organization, create_project, get_projects, create_budget,
     get_budgets, get_autopilot_policy, enable_autopilot, disable_autopilot,
@@ -173,7 +173,7 @@ def get_dashboard_overview(db: Session = Depends(get_db)):
     autopilot_savings = sum(a.estimated_savings for a in actions if a.status == "success")
 
     return {
-        "total_monthly_cost": round(total_cost, 2),
+        "total_monthly_cost": round(float(total_cost), 2),  # pyre-ignore[6]
         "cost_change_percentage": 5.2,
         "active_resources": active_count,
         "detected_anomalies_count": 0,
@@ -230,7 +230,7 @@ def get_cost_history():
 @app.get("/api/demo-costs")
 def get_demo_costs():
     """Returns 30 days of realistic demo cloud billing data."""
-    from demo.demo_cost_data import generate_demo_costs
+    from demo.demo_cost_data import generate_demo_costs  # pyre-ignore[21]
     return generate_demo_costs(days=30)
 
 
@@ -549,10 +549,10 @@ def run_autopilot_manually(org_id: int = 1, db: Session = Depends(get_db)):
     for rec in recs:
         result = engine.process_recommendation(org_id, rec)
         if result and result.status == "success":
-            executed_count = executed_count + 1
-            savings_total = savings_total + float(result.estimated_savings or 0.0)
+            executed_count = int(executed_count) + 1  # pyre-ignore[6, 58]
+            savings_total = float(savings_total) + float(result.estimated_savings or 0.0)  # pyre-ignore[6, 58]
         else:
-            skipped_count = skipped_count + 1
+            skipped_count = int(skipped_count) + 1  # pyre-ignore[6, 58]
         
     return {
         "message": f"Evaluated {len(recs)} recommendations.",

@@ -51,9 +51,9 @@ def _linear_forecast(history_data: List[Dict[str, Any]], forecast_days: int) -> 
         # Add simple ±10% confidence band for the fallback
         forecast.append({
             "date": str(future_date),
-            "forecast_cost": round(predicted, 2),
-            "forecast_low": round(predicted * 0.90, 2),
-            "forecast_high": round(predicted * 1.10, 2),
+            "forecast_cost": round(float(predicted), 2),  # pyre-ignore[6]
+            "forecast_low": round(float(predicted * 0.90), 2),  # pyre-ignore[6]
+            "forecast_high": round(float(predicted * 1.10), 2),  # pyre-ignore[6]
         })
 
     return forecast
@@ -91,13 +91,16 @@ class CostForecaster:
             df['y'] = df['cost'].astype(float)
             df = df[['ds', 'y']].sort_values(by='ds').drop_duplicates('ds')
 
-            self.model = Prophet(
-                yearly_seasonality=False,
-                weekly_seasonality=True,
-                daily_seasonality=False,
-                interval_width=0.80,   # 80% confidence interval
-            )
-            self.model.fit(df)
+            if Prophet is not None:
+                self.model = Prophet(
+                    yearly_seasonality=False,
+                    weekly_seasonality=True,
+                    daily_seasonality=False,
+                    interval_width=0.80,   # 80% confidence interval
+                )
+                self.model.fit(df)
+            else:
+                raise ImportError("Prophet class is None")
 
             future = self.model.make_future_dataframe(periods=forecast_days)
             forecast_df = self.model.predict(future)
@@ -150,4 +153,4 @@ class CostForecaster:
             if datetime.date.fromisoformat(f['date']) <= eom_day
         )
 
-        return round(actual_this_month + forecast_remaining, 2)
+        return round(float(actual_this_month + forecast_remaining), 2)  # pyre-ignore[6]
