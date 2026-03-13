@@ -150,9 +150,32 @@ function App() {
         <Header role={role} setRole={setRole} criticalBudgets={criticalBudgets} location={location} />
         <RoleBanner role={role} />
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto relative">
+          {loading && (
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-zinc-400 animate-pulse">Synchronizing cloud data...</p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-4 mx-6 mt-6 bg-red-900/20 border border-red-800/50 rounded-lg flex items-center gap-3 text-red-400 text-sm">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <p>{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="ml-auto px-3 py-1 bg-red-900/40 hover:bg-red-900/60 border border-red-700/50 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           <Routes>
             <Route path="/" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
+            <Route path="/dashboard" element={<DashboardOverviewPage overview={overview} history={history} forecast={forecast} costByService={costByService} resources={resources} budgetAlerts={budgetAlerts} />} />
             <Route path="/alerts" element={permissions.canSeeAlerts ? <AnomalyAlertsPage anomalies={anomalies} /> : <PageRestricted title="Alerts Access Restricted" />} />
             <Route path="/recommendations" element={permissions.canSeeRecommendations ? <RecommendationsPage recommendations={recommendations} /> : <PageRestricted title="Recommendations Restricted" />} />
             <Route path="/budgets" element={permissions.canSeeBudgets ? <BudgetsPage /> : <PageRestricted title="Budgets Access Restricted" />} />
