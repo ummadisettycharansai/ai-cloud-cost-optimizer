@@ -1,187 +1,403 @@
-# AI Cloud Cost Optimizer (FinOps SaaS Platform)
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,20,24,30&height=200&section=header&text=AI%20Cloud%20Cost%20Optimizer&fontSize=42&desc=Enterprise%20FinOps%20SaaS%20Platform&descSize=18&animation=fadeIn&fontColor=ffffff" />
+</p>
 
-![FinOps AI](https://img.shields.io/badge/FinOps-Platform-blueviolet?style=for-the-badge&logo=cloud)
-![Python Backend](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![React Frontend](https://img.shields.io/badge/React_Admin-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Streaming](https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
+<p align="center">
+  <a href="https://ai-cloud-cost-optimizer.vercel.app">
+    <img src="https://img.shields.io/badge/Live%20Demo-Vercel-61DAFB?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+  <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Python_3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12+" />
+  <img src="https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white" alt="Apache Kafka" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
+</p>
 
-An enterprise-grade, event-driven FinOps platform designed to identify, forecast, and autonomously remediate cloud infrastructure waste across AWS, Azure, and Google Cloud Platform (GCP).
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/ummadisettycharansai/ai-cloud-cost-optimizer/backend-ci.yml?style=flat-square&label=CI/CD" alt="CI/CD Status" />
+  <img src="https://img.shields.io/badge/Coverage-%E2%89%A580%25-green?style=flat-square" alt="Coverage" />
+  <img src="https://img.shields.io/badge/Deployments-19-blue?style=flat-square" alt="Deployments" />
+</p>
 
----
+<h3 align="center">
+  "Stop wasting cloud budget. Let AI identify, forecast, and fix it — automatically."
+</h3>
 
-## Live Demo
-
-Frontend dashboard deployed on Vercel.
-
-https://ai-cloud-cost-optimizer.vercel.app
-
-Note that the backend must be deployed separately for full API functionality.
-
----
-
-## 🚀 Project Overview
-
-Modern cloud infrastructure often incurs massive hidden costs due to idle resources, over-provisioning, and forgotten storage volumes. The **AI Cloud Cost Optimizer** solves this by uniting real-world billing APIs with AI-driven anomaly detection and **Cost Autopilot**, a system capable of executing automated remediation (e.g., shutting down idle EC2s or scaling down VMs) subject to strict safety policies.
-
-**Key Value Propositions:**
-1. **Multi-Tenant:** Supports multiple sub-organizations, projects, and Role-Based Access Control (Admin, Finance, Viewer).
-2. **Unified Billing:** Connects securely to AWS CE, Azure Cost Management, and GCP Billing.
-3. **Event-Driven:** Uses Apache Kafka for real-time cost event streaming.
-4. **Autonomous:** AI Cost Autopilot executes safe resource optimization without human intervention.
-5. **Production-Ready:** Containerized with Docker, deployable via Kubernetes, monitored via Prometheus/Grafana.
-
----
-
-## 🏗️ Architecture
-
-![Architecture](docs/architecture.png)
-
-### Deployment Architecture
-React Dashboard → Vercel
-FastAPI Backend → Cloud server (Render / AWS / Railway)
-PostgreSQL → Managed database
-Kafka → Event streaming pipeline
-
-### System Components
-The system leverages a microservices-inspired design:
-- **React Frontend:** Communicates via REST to FastAPI.
-- **FastAPI Core:** Handles Budgets, Org RBAC, and Authentication.
-- **Data Persistence:** Uses PostgreSQL and Redis object caching.
-- **Kafka Streaming:** Produces cost ingestion messages to topics.
-- **Python Consumers:** Processes anomalies async and trains Poly-Regression forecasting models.
+<p align="center">
+  <a href="https://ai-cloud-cost-optimizer.vercel.app">
+    <img src="https://img.shields.io/badge/🚀%20Live%20Demo-Click%20Here-blue?style=for-the-badge" alt="Live Demo" />
+  </a>
+  <a href="DEPLOYMENT.md">
+    <img src="https://img.shields.io/badge/📚%20Documentation-Read%20More-gray?style=for-the-badge" alt="Documentation" />
+  </a>
+  <a href="https://github.com/ummadisettycharansai/ai-cloud-cost-optimizer">
+    <img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-GitHub-black?style=for-the-badge" alt="Star on GitHub" />
+  </a>
+</p>
 
 ---
 
-## ✨ Features
+## 📑 Table of Contents
 
-*   **Multi-Cloud Integration:** Connect AWS, Azure, and GCP accounts securely via encrypted credential storage.
-*   **Budget Engine:** Track organizational spend vs allocations, with real-time alerting thresholds.
-*   **AI Cost Forecasting:** Uses polynomial regression to predict trailing 30-day spend signatures into the future.
-*   **Anomaly Detection:** Z-Score based isolation mechanisms detect sudden cost spikes in billing data within hours.
-*   **Recommendation Matrix:** Scans inventory to suggest Spot Instance migrations, S3 Glacier tiering, disk deletions, and rightsizing.
-*   **Cost Autopilot:** An autonomous agent that reads recommendations and physically executes them via Cloud SDKs if allowed.
-
----
-
-## 🛠️ Technology Stack
-
-*   **Backend:** Python 3.12+, FastAPI, SQLAlchemy, Alembic, Celery.
-*   **Frontend:** React 18, Vite, TypeScript, TailwindCSS, Recharts.
-*   **Data & Streaming:** PostgreSQL 15, Redis 7, Apache Kafka & Zookeeper.
-*   **DevOps & Observability:** Docker Compose, Kubernetes, Prometheus, Jaeger.
-*   **Testing:** Pytest & Playwright (High End-to-End coverage achieved).
+- [Project Overview](#-project-overview)
+- [Key Features](#-key-features)
+- [Architecture Diagram](#-architecture-diagram)
+- [Deployment Architecture](#-deployment-architecture)
+- [Project Folder Structure](#-project-folder-structure)
+- [Tech Stack](#-tech-stack)
+- [Screenshots](#-screenshots)
+- [Quick Start (Docker)](#-quick-start-docker)
+- [Local Development](#-local-development)
+- [Deployment Guide](#-deployment-guide)
+- [CI/CD Pipeline](#-cicd-pipeline)
+- [Contributing Guide](#-contributing-guide)
+- [License](#-license)
 
 ---
 
-## 💻 Installation Guide (Local Docker)
+## 🧐 Project Overview
 
-The easiest way to run the entire distributed FinOps stack is via Docker Compose.
+In a world governed by multi-cloud complexity, organizations often bleed revenue through **idle resources, over-provisioned VMs, and forgotten storage assets**. Traditional cost management units are retroactive and manual, failing to keep pace with dynamic container orchestration and serverless scaling.
 
-1.  **Clone the Repository:**
-    ```bash
-    git clone https://github.com/yourusername/ai-cloud-cost-optimizer.git
-    cd ai-cloud-cost-optimizer
-    ```
-2.  **Environment Variables:**
-    ```bash
-    cp backend/.env.example backend/.env
-    # The system will auto-generate encryption keys for DB storage
-    ```
-3.  **Boot the Stack:**
-    ```bash
-    docker-compose up --build
-    ```
-4.  **Access the applications:**
-    *   React Dashboard: `http://localhost:5173`
-    *   FastAPI Swagger Docs: `http://localhost:8000/docs`
+**AI Cloud Cost Optimizer** is an enterprise-grade, event-driven FinOps platform designed to bridge the gap between visibility and action. It combines real-time data ingestion with advanced AI logic to perform three critical functions:
+
+1.  **Anomaly Detection**: Identifies billing spikes in near real-time using statistical Z-Score modeling.
+2.  **Spend Forecasting**: Projects future costs using polynomial regression with high-confidence intervals.
+3.  **Autonomous Remediation (Cost Autopilot)**: Executes rightsizing and lifecycle actions automatically based on user-defined safety policies.
+
+By providing a unified pane of glass for AWS, Azure, and GCP, this platform empowers FinOps teams to transition from "paying for what you provision" to "paying for what you use."
 
 ---
 
-## 🚢 Deployment Guide (Kubernetes)
+## ✨ Key Features
 
-The project includes YAML manifests for deployment to EKS, AKS, or GKE.
-
-1.  **Configure Secrets:**
-    Update `kubernetes/config-secrets.yaml` with your base64 encoded DB passwords and JWT hashes.
-2.  **Apply Manifests:**
-    ```bash
-    kubectl apply -f kubernetes/
-    ```
-3.  **Check Services:**
-    ```bash
-    kubectl get pods -l app=finops-backend
-    kubectl get svc finops-ingress
-    ```
+<table width="100%">
+  <tr>
+    <td width="50%">
+      <b>🌐 Multi-Cloud Integration</b><br/>
+      Connects AWS, Azure, and GCP through a unified interface. Uses Fernet symmetric encryption to secure cloud credentials in the primary database. <i>Benefit: Eliminates multi-provider visibility silos with enterprise security.</i>
+    </td>
+    <td width="50%">
+      <b>🧠 AI Cost Anomaly Detection</b><br/>
+      Leverages Z-Score statistical modeling to detect billing anomalies within hours of ingestion. Calibrated per-service to minimize false alerts. <i>Benefit: Prevents runaway costs from misconfigured services or sudden traffic spikes.</i>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>📈 Predictive Cost Forecasting</b><br/>
+      Employs polynomial regression on 30-day trailing spend to project future usage trends with confidence bounds. <i>Benefit: Enables proactive budget planning rather than reactive end-of-month reporting.</i>
+    </td>
+    <td>
+      <b>🤖 Cost Autopilot</b><br/>
+      Autonomous remediation engine that executes rightsizing, Spot migrations, and orphaned disk deletions via Cloud SDKs. <i>Benefit: Reduces manual DevOps toil by fixing waste automatically under predefined safety levels.</i>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>💰 Budget Engine</b><br/>
+      Real-time org-level spend tracking with configurable multi-stage alert thresholds. Updates dynamically as Kafka billing events stream in. <i>Benefit: Ensures absolute adherence to financial guardrails across complex org structures.</i>
+    </td>
+    <td>
+      <b>📋 Recommendation Matrix</b><br/>
+      Scans cloud inventory for Spot migration opportunities, S3 tiering, and VM rightsizing. Assigns ROI scores and priority tiers. <i>Benefit: Provides a prioritized backlog of high-impact cost-saving actions for platform engineers.</i>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>🔐 Multi-Tenant RBAC</b><br/>
+      Hierarchical organization, project, and account structure with Admin, Finance, and Viewer roles. Enforces absolute row-level data isolation. <i>Benefit: Securely supports large enterprises with segregated business units and access needs.</i>
+    </td>
+    <td>
+      <b>📡 Full Observability Stack</b><br/>
+      Integrated Prometheus metrics, Grafana dashboards, and Jaeger distributed tracing. <i>Benefit: Monitors everything from API latency to Kafka consumer lag and ML inference performance in one place.</i>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 📷 Screenshots
+## 🏗 Architecture Diagram
+
+```mermaid
+flowchart TB
+    subgraph Frontend
+        React[React 18 / Vite Dashboard]
+    end
+
+    subgraph "Backend Core"
+        FastAPI[FastAPI Gateway]
+        Auth[JWT / RBAC Middleware]
+        PG[(PostgreSQL 15)]
+        Redis[(Redis 7 Cache)]
+    end
+
+    subgraph Streaming
+        Kafka{Apache Kafka}
+        Consumer[Cost Event Consumer]
+    end
+
+    subgraph "AI Engine"
+        ML[ML Processor: Anomaly & Forecast]
+        Autopilot[Autopilot Engine]
+    end
+
+    subgraph "External Cloud APIs"
+        AWS[AWS Cost Explorer]
+        Azure[Azure Cost Mgmt]
+        GCP[GCP Billing]
+    end
+
+    subgraph Monitoring
+        Prom[Prometheus]
+        Graf[Grafana]
+        Jaeger[Jaeger Tracing]
+    end
+
+    React <--> FastAPI
+    FastAPI <--> Auth
+    FastAPI <--> PG
+    FastAPI <--> Redis
+    FastAPI --> Kafka
+    Kafka --> Consumer
+    Consumer --> ML
+    ML --> Autopilot
+    Autopilot --> AWS
+    Autopilot --> Azure
+    Autopilot --> GCP
+    FastAPI -.-> Prom
+    Consumer -.-> Prom
+    Prom --> Graf
+    FastAPI -.-> Jaeger
+```
+
+---
+
+## 🚀 Deployment Architecture
+
+### Production Environment
+```text
+Vercel (React SPA) ─► Render/Railway (FastAPI) ─► Managed PostgreSQL/Redis
+                                    │
+                                    └─► K8s Cluster (EKS/AKS/GKE)
+                                          ├─ Kafka + Zookeeper
+                                          ├─ Celery Workers
+                                          └─ Cost Event Consumer
+```
+
+### Development Environment (Local)
+```text
+docker-compose up ─► Localhost Swarm
+                      ├─ Frontend (Port 5173)
+                      ├─ Backend (Port 8000)
+                      ├─ Kafka + Zookeeper
+                      └─ Postgres + Redis + Prometheus + Grafana
+```
+
+---
+
+## 📂 Project Folder Structure
+
+```text
+ai-cloud-cost-optimizer/
+├── .github/workflows/       # GitHub Actions CI/CD pipelines (Backend & Main)
+├── backend/                 # FastAPI Core Application
+│   ├── auth/                # JWT Authentication & RBAC logic
+│   ├── models/              # SQLAlchemy ORM models (Database Schema)
+│   ├── services/            # Business logic (Cloud connector, recommendation engine)
+│   ├── workers/             # Celery async task definitions
+│   ├── ml_pipeline/         # AI/ML logic (Anomaly & Forecasting)
+│   ├── cloud_integrations/  # Provider-specific API wrappers (AWS/GCP/Azure)
+│   └── main.py              # Application entrypoint & Router registration
+├── frontend/                # React 18 + Vite SPA
+│   ├── src/components/      # Reusable UI components (Modals, Buttons)
+│   ├── src/pages/           # Dashboard, Autopilot, and Settings pages
+│   ├── src/charts/          # Cost analytics & forecasting visualizations
+│   └── src/utils/           # API client and formatting helpers
+├── streaming/               # Real-time event processing
+│   └── kafka_consumer/      # High-concurrency cost event consumer
+├── infrastructure/          # Cloud-native infrastructure configs
+│   └── kubernetes/          # K8s YAML manifests for cluster deployment
+├── obs/                     # Observability configuration
+│   ├── prometheus.yml       # Metrics scraping targets
+│   └── grafana/             # Pre-configured dashboard JSONs
+├── docs/                    # Architecture diagrams and system assets
+├── docker-compose.yml       # Multi-service local development stack
+├── docker-compose.obs.yml   # Observability & Monitoring stack extension
+├── railway.toml             # Configuration for Railway.app deployments
+└── render.yaml              # Configuration for Render.com deployments
+```
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Frontend** | React 18 / Vite | TypeScript | High-performance Analytics UI |
+| **Backend** | FastAPI | Python 3.12+ | Asynchronous REST API Gateway |
+| **AI / ML** | scikit-learn / PolyFit | — | Anomaly Detection & Forecasting |
+| **Primary DB** | PostgreSQL | 15 | Multi-tenant Persistence |
+| **Cache / MQ** | Redis | 7 | Speed layer & Task coordination |
+| **Streaming** | Apache Kafka | 3.x | Real-time Billing Event Pipeline |
+| **Security** | Fernet / JWT | HS256 | Credential Encryption & Auth |
+| **Cloud APIs** | AWS / Azure / GCP | SDKs | Native Provider Integrations |
+| **Orchestration** | Kubernetes | EKS/AKS | Production Cluster Management |
+| **Observability** | Prometheus/Grafana | OSS | Metrics & Performance Dashboards |
+| **E2E Testing** | Playwright | — | Frontend User Flow Validation |
+| **SAST** | Bandit / Trivy | — | Security & Container Scanning |
+
+---
+
+## 📸 Screenshots
 
 | Dashboard Overview | Cost Autopilot UI |
 | :---: | :---: |
-| ![Dashboard Overview](docs/screenshots/dashboard.png) | ![Cost Autopilot](docs/screenshots/autopilot.png) |
-
-| AI Forecasts | Budget Configurator | Cloud Connections Hub |
-| :---: | :---: | :---: |
-| ![AI Forecasts](docs/screenshots/forecast.png) | ![Budget Configurator](docs/screenshots/budgets.png) | ![Connections Hub](docs/screenshots/cloud-connections.png) |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Autopilot](docs/screenshots/autopilot.png) |
+| **AI Forecasts** | **Budget Configurator** | Cloud Hub |
+| ![Forecasts](docs/screenshots/forecasting.png) | ![Budget](docs/screenshots/budget.png) | ![Cloud Hub](docs/screenshots/cloud_hub.png) |
 
 ---
 
-## 🔄 Demo Workflow
+## 🐳 Quick Start (Docker)
 
-1. **Organization Creation:** Sign up an admin. Creates `FinOps Alpha` org.
-2. **Cloud Connect:** Navigate to settings. Add mock AWS credentials (saved via Fernet).
-3. **Trigger Pipeline:** Run `verify_full_pipeline.py` which pushes JSON payloads into Kafka.
-4. **View Budgets:** Open `http://localhost:5173/budgets`. Observe total vs projected spend.
-5. **Autopilot Enablement:** Set Safety Policy to 'High'. AI will execute Right-Sizing logic on mock EC2 responses. Watch the Notification bell ping.
+**Prerequisites**: Docker Engine 24+, Docker Compose v2+
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ummadisettycharansai/ai-cloud-cost-optimizer.git
+   cd ai-cloud-cost-optimizer
+   ```
+
+2. **Initialize Environment**
+   ```bash
+   cp backend/.env.example backend/.env
+   # Update the .env file with your cloud credentials if testing real integrations
+   ```
+
+3. **Launch Stack**
+   ```bash
+   docker-compose up --build
+   ```
+
+| Service | URL | Notes |
+| :--- | :--- | :--- |
+| **React Dashboard** | http://localhost:5173 | UI for registration and management |
+| **FastAPI Swagger** | http://localhost:8000/docs | Interactive API documentation |
+| **Grafana** | http://localhost:3000 | User: `admin` / Pass: `finops` |
+| **Prometheus** | http://localhost:9090 | Metric exploration UI |
+| **Jaeger UI** | http://localhost:16686 | Distributed tracing dashboard |
 
 ---
 
-## 🛠️ Engineering Highlights
+## 💻 Local Development
 
-- **JWT + RBAC Middleware:** Implemented secure route dependencies protecting Org-level separation.
-- **Fernet Symmetric Security:** AWS Account Secret Access keys are never plaintext in Postgres.
-- **Decoupled Event Streaming:** `celery_worker` drops heavy polling cycles, pushing data to `kafka` for down-stream consumers to handle Isolation Forest Anomaly Detection independent of API latency.
+### Backend Setup
+```bash
+cd backend
+python -m venv venv
+# Windows: venv\Scripts\activate | Unix: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Running Tests
+```bash
+# Backend unit tests & coverage
+cd backend
+pytest --cov=. --cov-report=term-missing --cov-fail-under=80
+
+# Frontend E2E tests
+cd frontend
+npx playwright test
+```
 
 ---
 
-## ☁️ GitHub Repository Setup
+## ☸️ Deployment Guide
 
-To host this project on GitHub for team collaboration, follow these push instructions:
+### A) Docker Compose (Full Stack)
+Recommended for staging and single-node evaluation.
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.obs.yml up -d
+```
 
-1. Create a new repository on GitHub named **`ai-cloud-cost-optimizer`**.
-2. Add the remote origin:
-   ```bash
-   git remote add origin https://github.com/<username>/ai-cloud-cost-optimizer.git
-   ```
-3. Push the project:
-   ```bash
-   git branch -M main
-   git push -u origin main
-   ```
+### B) Kubernetes
+Production deployment via EKS/AKS.
+```bash
+kubectl apply -f infrastructure/kubernetes/
+kubectl get pods -l app=finops-backend
+kubectl get svc finops-ingress
+```
+
+### C) Cloud Platforms
+- **Frontend**: Connect to Vercel and point to `frontend/` folder.
+- **Backend**: Connect to Render/Railway and point to `backend/` folder.
 
 ---
 
-## 🤝 Team Collaboration
+## 🔄 CI/CD Pipeline
 
-We welcome team collaboration! Follow these steps to get started:
+```mermaid
+flowchart LR
+    Push[Git Push] --> CI[GitHub Actions]
+    subgraph QualityGates
+        CI --> Test[Pytest Coverage ≥80%]
+        CI --> SAST[Bandit Security Scan]
+        CI --> Trivy[Container Scan]
+    end
+    subgraph Deployment
+        Test -- Success --> Build[Vite/Docker Build]
+        Build --> Deploy[Vercel / K8s Deploy]
+    end
+    SAST -- Fail --> Block[Block Merge]
+```
 
-### Adding Collaborators
-Repository administrators should navigate to **Repository Settings → Collaborators → Add People**. 
-Recommended roles:
-- **Admin**: For Senior Engineers / DevOps.
-- **Write**: For standard developers merging Pull Requests.
-- **Read**: For viewers and stakeholders.
+### Required Secrets
+| Secret | How to Obtain |
+| :--- | :--- |
+| `VERCEL_TOKEN` | Vercel Account Settings → Tokens |
+| `VERCEL_ORG_ID` | `vercel link` → `.vercel/project.json` → `orgId` |
+| `VERCEL_PROJECT_ID` | `vercel link` → `.vercel/project.json` → `projectId` |
 
-### Branch Workflow
-Please utilize feature branching and Pull Requests for any modifications:
+---
 
-1. Create a branch:
-   ```bash
-   git checkout -b feature-autopilot-ui
-   ```
-2. Make your commits, then push:
-   ```bash
-   git push origin feature-autopilot-ui
-   ```
-3. Open a Pull Request on GitHub. Ensure CI/CD GitHub Actions pass before requesting a review.
+## 🤝 Contributing Guide
+
+### Branching Model
+| Prefix | Purpose |
+| :--- | :--- |
+| `feature/` | New functionality or dashboard components |
+| `fix/` | Bug fixes and remediation logic patching |
+| `chore/` | CI/CD changes, dependencies, or refactors |
+| `docs/` | Documentation and architecture updates |
+
+### PR Requirements
+- All CI checks must pass (Test coverage ≥80% is enforced).
+- Mandatory security scans (Bandit/Trivy) must come back clean.
+- At least one code review approval from a project maintainer.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,20,24,30&height=120&section=footer&animation=fadeIn" />
+</p>
+
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/ummadisettycharansai">Charan Sai</a><br/>
+  <b>⭐ Star this repo if it helped your FinOps journey!</b>
+</p>
