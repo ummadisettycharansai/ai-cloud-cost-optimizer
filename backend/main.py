@@ -7,9 +7,23 @@ from sqlalchemy.orm import Session  # pyre-ignore[21]
 from typing import Optional, List
 
 logger = logging.getLogger(__name__)
-from models import Base  # pyre-ignore[21]
-from schemas import *  # pyre-ignore[21]
-from crud import *  # pyre-ignore[21]
+import models  # pyre-ignore[21]
+import schemas # pyre-ignore[21]
+import crud    # pyre-ignore[21]
+from models import Base, CloudResource, CostHistory  # pyre-ignore[21]
+from schemas import (
+    OrganizationCreate, OrganizationOut, ProjectCreate, ProjectOut,
+    BudgetCreate, BudgetOut, AutopilotPolicyOut, AutopilotActionOut,
+    AutopilotRunResult, CloudAccountOut, CloudAccountCreateAWS,
+    CloudAccountCreateAzure, CloudAccountCreateGCP
+)
+from crud import (
+    get_autopilot_actions, create_organization, get_organizations,
+    get_organization, create_project, get_projects, create_budget,
+    get_budgets, get_autopilot_policy, enable_autopilot, disable_autopilot,
+    get_cloud_accounts, create_cloud_account, delete_cloud_account,
+    get_cloud_account_by_id, update_cloud_account_sync_time
+)
 from database import engine, get_db  # pyre-ignore[21]
 
 from services.aws_service import AWSService  # pyre-ignore[21]
@@ -529,22 +543,22 @@ def run_autopilot_manually(org_id: int = 1, db: Session = Depends(get_db)):
 
     # 3. Process via Autopilot Engine
     engine = RemediationEngine(db)
-    executed = 0
-    skipped = 0
-    savings = 0.0
+    executed_count: int = 0
+    skipped_count: int = 0
+    savings_total: float = 0.0
     for rec in recs:
         result = engine.process_recommendation(org_id, rec)
         if result and result.status == "success":
-            executed += 1
-            savings += result.estimated_savings
+            executed_count = executed_count + 1
+            savings_total = savings_total + float(result.estimated_savings or 0.0)
         else:
-            skipped += 1
+            skipped_count = skipped_count + 1
         
     return {
         "message": f"Evaluated {len(recs)} recommendations.",
-        "actions_executed": executed,
-        "actions_skipped": skipped,
-        "total_savings_estimated": savings
+        "actions_executed": executed_count,
+        "actions_skipped": skipped_count,
+        "total_savings_estimated": savings_total
     }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -559,11 +573,11 @@ def api_get_cloud_accounts(org_id: int = 1, db: Session = Depends(get_db)):
 @app.post("/api/connect/aws", response_model=CloudAccountOut, status_code=201)
 def connect_aws_account(
     account_in: CloudAccountCreateAWS,
-    org_id: int = 1,
     db: Session = Depends(get_db),
     user_role: str = Depends(RequireRole(["admin"])),
 ):
     """Connect an AWS account securely."""
+    org_id = account_in.org_id
     mgr = get_credential_manager()
     creds = {}
     if account_in.role_arn:
@@ -591,11 +605,11 @@ def connect_aws_account(
 @app.post("/api/connect/azure", response_model=CloudAccountOut, status_code=201)
 def connect_azure_account(
     account_in: CloudAccountCreateAzure,
-    org_id: int = 1,
     db: Session = Depends(get_db),
     user_role: str = Depends(RequireRole(["admin"])),
 ):
     """Connect an Azure subscription securely using a Service Principal."""
+    org_id = account_in.org_id
     mgr = get_credential_manager()
     creds = {
         "tenant_id": account_in.tenant_id,
@@ -618,11 +632,11 @@ def connect_azure_account(
 @app.post("/api/connect/gcp", response_model=CloudAccountOut, status_code=201)
 def connect_gcp_account(
     account_in: CloudAccountCreateGCP,
-    org_id: int = 1,
     db: Session = Depends(get_db),
     user_role: str = Depends(RequireRole(["admin"])),
 ):
     """Connect a GCP project securely using a Service Account JSON."""
+    org_id = account_in.org_id
     mgr = get_credential_manager()
     creds = {
         "project_id": account_in.project_id,

@@ -190,6 +190,7 @@ class AutopilotRunResult(BaseModel):
 
 
 class CloudAccountCreateBase(BaseModel):
+    org_id: int
     provider: str
     account_alias: str
     region: str = "us-east-1"

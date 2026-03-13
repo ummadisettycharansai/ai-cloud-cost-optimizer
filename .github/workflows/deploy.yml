@@ -64,7 +64,7 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     env:
-      ECR_REGISTRY: ${{ secrets['AWS_ACCOUNT_ID'] }}.dkr.ecr.us-east-1.amazonaws.com
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
     steps:
       - name: Checkout
@@ -73,8 +73,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets['AWS_ACCESS_KEY_ID'] }}
-          aws-secret-access-key: ${{ secrets['AWS_SECRET_ACCESS_KEY'] }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -84,16 +84,15 @@ jobs:
       - name: Build & Push Backend Image
         run: |
           IMAGE_TAG=${{ github.sha }}
-          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG ./backend
-          docker tag $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG $ECR_REGISTRY/$BACKEND_IMAGE:latest
-          docker push $ECR_REGISTRY/$BACKEND_IMAGE:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
+          docker build -t ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:$IMAGE_TAG ./backend
+          docker tag ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:$IMAGE_TAG ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
+          docker push ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:$IMAGE_TAG
+          docker push ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
           echo "BACKEND_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Build & Push Frontend Image
         run: |
           IMAGE_TAG=${{ github.sha }}
-          docker build -t $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG ./frontend
           docker tag $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG $ECR_REGISTRY/$FRONTEND_IMAGE:latest
           docker push $ECR_REGISTRY/$FRONTEND_IMAGE:$IMAGE_TAG
           docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
