@@ -80,13 +80,13 @@ function App() {
         ]);
 
         setOverview(ovRes.data);
-        setHistory(histRes.data);
-        setForecast(Array.isArray(forcRes.data) ? { forecast: forcRes.data, eom_projected_spend: 0 } : forcRes.data);
-        setAnomalies(anomRes.data);
-        setRecommendations(recRes.data);
-        setCostByService(cbsRes.data);
-        setResources(resRes.data);
-        setBudgetAlerts(baRes.data);
+        setHistory(Array.isArray(histRes.data) ? histRes.data : []);
+        setForecast(Array.isArray(forcRes.data) ? { forecast: forcRes.data, eom_projected_spend: 0 } : forcRes.data || { forecast: [], eom_projected_spend: 0 });
+        setAnomalies(Array.isArray(anomRes.data) ? anomRes.data : []);
+        setRecommendations(Array.isArray(recRes.data) ? recRes.data : []);
+        setCostByService(cbsRes.data || {});
+        setResources(Array.isArray(resRes.data) ? resRes.data : []);
+        setBudgetAlerts(Array.isArray(baRes.data) ? baRes.data : []);
       } catch (err) {
         console.error('Error fetching data', err);
       }

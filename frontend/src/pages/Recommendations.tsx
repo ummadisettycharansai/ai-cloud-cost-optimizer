@@ -37,17 +37,19 @@ export default function RecommendationsPage({ recommendations }: Recommendations
   const [filter, setFilter] = useState<string>('all');
   const [providerFilter, setProviderFilter] = useState<string>('all');
 
+  const safeRecommendations = Array.isArray(recommendations) ? recommendations : [];
+  
   const filtered = useMemo(() => {
-    return recommendations.filter(r => {
-      const matchesPriority = filter === 'all' || r.priority === filter;
+    return safeRecommendations.filter(r => {
+      const matchesPriority = filter === 'all' || (r.priority?.toLowerCase() === filter.toLowerCase());
       const matchesProvider = providerFilter === 'all' || r.provider === providerFilter;
       return matchesPriority && matchesProvider;
     });
-  }, [recommendations, filter, providerFilter]);
+  }, [safeRecommendations, filter, providerFilter]);
 
-  const totalSavings = recommendations.reduce((s, r) => s + (r.estimated_savings ?? 0), 0);
-  const avgROI = recommendations.length > 0
-    ? recommendations.reduce((s, r) => s + (r.roi_score ?? 0), 0) / recommendations.length
+  const totalSavings = safeRecommendations.reduce((s, r) => s + (r.estimated_savings ?? 0), 0);
+  const avgROI = safeRecommendations.length > 0
+    ? safeRecommendations.reduce((s, r) => s + (r.roi_score ?? 0), 0) / safeRecommendations.length
     : 0;
 
   if (!permissions.canSeeRecommendations) {
@@ -70,7 +72,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2"><Lightbulb className="w-3 h-3" /> Recommendations</div>
-          <p className="text-2xl font-bold text-zinc-100">{recommendations.length}</p>
+          <p className="text-2xl font-bold text-zinc-100">{safeRecommendations.length}</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2"><DollarSign className="w-3 h-3" /> Total Potential Savings</div>
@@ -85,7 +87,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div className="flex items-center gap-2 text-zinc-500 text-xs mb-2">🔴 Critical Actions</div>
           <p className="text-2xl font-bold text-red-400">
-            {recommendations.filter(r => r.priority === 'critical').length}
+            {safeRecommendations.filter(r => r.priority?.toLowerCase() === 'critical').length}
           </p>
         </div>
       </div>
@@ -116,7 +118,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
             </button>
           ))}
         </div>
-        <span className="text-xs text-zinc-500 self-center">{filtered.length} of {recommendations.length} shown</span>
+        <span className="text-xs text-zinc-500 self-center">{filtered.length} of {safeRecommendations.length} shown</span>
       </div>
 
       {/* Recommendations Table */}
@@ -137,7 +139,7 @@ export default function RecommendationsPage({ recommendations }: Recommendations
             </thead>
             <tbody className="divide-y divide-zinc-800">
               {filtered.map((r, i) => {
-                const pc = PRIORITY_CONFIG[r.priority ?? 'low'];
+                const pc = PRIORITY_CONFIG[(r.priority?.toLowerCase() ?? 'low')] || PRIORITY_CONFIG.low;
                 return (
                   <tr key={i} className="hover:bg-zinc-800/50 transition-colors group">
                     <td className="px-4 py-3">
