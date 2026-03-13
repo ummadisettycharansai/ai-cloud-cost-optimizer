@@ -64,7 +64,7 @@ class RemediationEngine:
             "status": status,
             "estimated_savings": savings
         }
-        crud.log_autopilot_action(self.db, action_data)
+        action = crud.log_autopilot_action(self.db, action_data)
         logger.info(f"[AUTOPILOT] Executed: {action_type} on {resource_id} (Status: {status})")
 
         # 6. Notify

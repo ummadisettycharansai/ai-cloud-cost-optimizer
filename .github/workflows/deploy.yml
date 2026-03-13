@@ -40,7 +40,7 @@ jobs:
       - name: Run Backend Tests
         working-directory: backend
         run: |
-          python -m pytest tests/ -v --tb=short || echo "No tests yet — skipping"
+          PYTHONPATH=. python -m pytest tests/ -v --tb=short || echo "No tests yet — skipping"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -89,6 +89,11 @@ jobs:
           docker push ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:$IMAGE_TAG
           docker push ${{ env.ECR_REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
           echo "BACKEND_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Build Frontend Image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t ${{ env.ECR_REGISTRY }}/${{ env.FRONTEND_IMAGE }}:$IMAGE_TAG ./frontend
 
       - name: Build & Push Frontend Image
         run: |

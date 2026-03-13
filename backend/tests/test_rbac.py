@@ -25,8 +25,8 @@ def test_viewer_cannot_modify_budgets(client, viewer_headers, setup_default_org)
     payload = {
         "org_id": setup_default_org.id,
         "name": "Hacked Budget",
-        "monthly_amount": 99999.0,
-        "alert_threshold_percent": 50.0
+        "monthly_limit": 99999.0,
+        "alert_threshold_pct": 0.50
     }
     resp = client.post("/api/budgets", json=payload, headers=viewer_headers)
     assert resp.status_code == 403
