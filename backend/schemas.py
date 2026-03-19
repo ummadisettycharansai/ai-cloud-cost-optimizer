@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field  # pyre-ignore[21]
+from pydantic import BaseModel, Field, ConfigDict  # pyre-ignore[21]
 from typing import Optional, List
 import datetime
 
@@ -14,14 +14,13 @@ class OrganizationCreate(BaseModel):
 
 
 class OrganizationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
     plan: str
     created_at: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -37,6 +36,8 @@ class ProjectCreate(BaseModel):
 
 
 class ProjectOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     org_id: int
     name: str
@@ -44,9 +45,6 @@ class ProjectOut(BaseModel):
     description: str
     tags: str
     created_at: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -63,6 +61,8 @@ class BudgetCreate(BaseModel):
 
 
 class BudgetOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     org_id: int
     project_id: Optional[int]
@@ -72,9 +72,6 @@ class BudgetOut(BaseModel):
     cloud_provider: str
     active: bool
     period_start: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
 
 class BudgetAlertOut(BaseModel):
@@ -105,10 +102,9 @@ class CloudResourceCreate(CloudResourceBase):
 
 
 class CloudResourceResponse(CloudResourceBase):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: int
 
 
 class CostAnomalyBase(BaseModel):
@@ -123,11 +119,10 @@ class CostAnomalyCreate(CostAnomalyBase):
 
 
 class CostAnomalyResponse(CostAnomalyBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     anomaly_date: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
 
 class RecommendationBase(BaseModel):
@@ -143,11 +138,10 @@ class RecommendationCreate(RecommendationBase):
 
 
 class RecommendationResponse(RecommendationBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     status: str
-
-    class Config:
-        from_attributes = True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -163,13 +157,14 @@ class AutopilotPolicyCreate(AutopilotPolicyBase):
     org_id: int
 
 class AutopilotPolicyOut(AutopilotPolicyBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     org_id: int
 
-    class Config:
-        from_attributes = True
-
 class AutopilotActionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     org_id: int
     provider: str
@@ -178,9 +173,6 @@ class AutopilotActionOut(BaseModel):
     status: str
     estimated_savings: float
     executed_at: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
 class AutopilotRunResult(BaseModel):
     message: str
@@ -214,6 +206,8 @@ class CloudAccountCreateGCP(CloudAccountCreateBase):
     service_account_json: str
 
 class CloudAccountOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     org_id: int
     provider: str
@@ -224,6 +218,3 @@ class CloudAccountOut(BaseModel):
     enabled: bool
     last_synced_at: Optional[datetime.datetime] = None
     created_at: datetime.datetime
-
-    class Config:
-        from_attributes = True

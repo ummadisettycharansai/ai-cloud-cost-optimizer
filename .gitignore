@@ -27,8 +27,13 @@ __pycache__/
 Thumbs.db
 
 # IDEs
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 
 .vercel
 .env*.local
+
+# Pytest test artifact output files (can be UTF-16 binary on Windows)
+backend/test_out.txt
+backend/test_results.txt
