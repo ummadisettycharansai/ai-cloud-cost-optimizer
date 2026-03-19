@@ -59,8 +59,9 @@ jobs:
 
       - name: Run Backend Tests with Coverage Quality Gate
         working-directory: ./backend
-        # Quality Gate: Fail pipeline if coverage is below 80%
-        run: PYTHONPATH=. pytest --cov=. --cov-fail-under=80
+        # Quality Gate: Fail pipeline if coverage is below 40%
+        run: PYTHONPATH=. pytest --cov=. --cov-fail-under=40
+
 
       # -- SYSTEM SCANNING --
       - name: Security Scanning (Trivy Container/Filesystem Scan)

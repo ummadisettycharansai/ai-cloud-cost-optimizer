@@ -2,16 +2,17 @@
 Centralised application configuration.
 All settings are read from environment variables (or a .env file).
 """
-import os
 from typing import Optional
 
-try:
-    from pydantic_settings import BaseSettings  # pyre-ignore[21]
-except ImportError:
-    from pydantic import BaseSettings  # type: ignore
+from pydantic_settings import BaseSettings, SettingsConfigDict  # pyre-ignore[21]
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
+
     # ── Application ──────────────────────────────────────────────────
     app_name: str = "AI Cloud Cost Optimizer"
     app_version: str = "3.0.0"
@@ -56,10 +57,6 @@ class Settings(BaseSettings):
 
     # ── Budget Engine ────────────────────────────────────────────────
     default_alert_threshold_pct: float = 0.80  # 80 % of budget triggers alert
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 # Singleton instance used throughout the application
